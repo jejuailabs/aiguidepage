@@ -1,5 +1,5 @@
 'use client';
-import {useEffect, useMemo, useSyncExternalStore} from 'react';
+import {useCallback, useEffect, useMemo, useSyncExternalStore} from 'react';
 import {defaultSnapshot, parsePreferences, preferenceKey, type Preferences} from './preferences';
 const subscribe = (callback: () => void) => {
   const onStorage = (event: StorageEvent) => {if (event.key === preferenceKey || event.key === null) {memory = null; callback();}};
@@ -22,11 +22,11 @@ export function usePreferences() {
     apply(); media.addEventListener('change', apply);
     return () => media.removeEventListener('change', apply);
   }, [preferences]);
-  const update = (patch: Partial<Preferences>) => {
+  const update = useCallback((patch: Partial<Preferences>) => {
     const next = JSON.stringify({...parsePreferences(getSnapshot()), ...patch});
     memory = next;
     try {localStorage.setItem(preferenceKey, next);} catch {}
     window.dispatchEvent(new Event('gallery-preferences'));
-  };
+  }, []);
   return {preferences, update};
 }

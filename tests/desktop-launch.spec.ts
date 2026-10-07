@@ -47,7 +47,7 @@ test('unverified services do not expose a guessed launch URL', async ({page}) =>
 });
 
 test('mobile devices and narrow windows keep website-only controls', async ({browser, page}) => {
-  const context = await browser.newContext({...devices['iPhone 13'], baseURL: 'http://127.0.0.1:3000'});
+  const context = await browser.newContext({...devices['iPhone 13'], baseURL: process.env.TEST_BASE_URL || 'http://127.0.0.1:3000'});
   const mobile = await context.newPage();
   await mobile.goto('/ko?item=claude');
   await expect(mobile.getByRole('dialog')).toBeVisible();

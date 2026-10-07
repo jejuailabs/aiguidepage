@@ -1,9 +1,12 @@
 'use client';
+import {useRouter} from 'next/navigation';
 import {useEffect, useRef, useState, useSyncExternalStore} from 'react';
-import {useTranslations} from 'next-intl';
+import {useTranslations,useLocale} from 'next-intl';
 import {LayoutGroup, MotionConfig} from 'motion/react';
 import {ArrowRight, ArrowUpRight, Search, Sparkles, X} from 'lucide-react';
 import {aiItems, categories, type AiItem, type Category} from '@/data/ai';
+import {toAiItem} from '@/lib/ai-item';
+import type {PortalItem} from '@/lib/schema';
 import type {HallId} from '@/data/halls';
 import {usePreferences} from '@/theme/use-preferences';
 import {Header} from './shell/header';
@@ -18,10 +21,13 @@ const subscribeToLocation = (callback: () => void) => {
 };
 const selectedItem = () => new URLSearchParams(window.location.search).get('item') || '';
 export function Gallery() {
-  const t = useTranslations();
+  const router=useRouter(),t = useTranslations();
+  const locale=useLocale();
+  const [catalog,setCatalog]=useState(aiItems);
+  useEffect(()=>{const controller=new AbortController();void fetch('/api/catalog',{signal:controller.signal}).then(async response=>{if(response.ok){const data=await response.json() as {items:PortalItem[]};setCatalog(data.items.map(item=>toAiItem(item,locale)));}}).catch(()=>{});return()=>controller.abort();},[locale]);
   const {preferences, update} = usePreferences();
   const selectedId = useSyncExternalStore(subscribeToLocation, selectedItem, () => '');
-  const activeItem = aiItems.find(item => item.id === selectedId);
+  const activeItem = catalog.find(item => item.id === selectedId);
   const [category, setCategory] = useState<Category>('all');
   const [query, setQuery] = useState('');
   const [searchOpen, setSearchOpen] = useState(false);
@@ -29,7 +35,7 @@ export function Gallery() {
   const focusReturn = useRef<HTMLElement | null>(null);
   const searchInput = useRef<HTMLInputElement | null>(null);
   const pushedItem = useRef(false);
-  const visibleItems = aiItems.filter(item => [item.name, t(`ai.${item.id}.summary`), t(`categories.${item.category}`)].join(' ').toLowerCase().includes(query.trim().toLowerCase()));
+  const visibleItems = catalog.filter(item => [item.name, item.content?.summary||t(`ai.${item.id}.summary`), t(`categories.${item.category}`)].join(' ').toLowerCase().includes(query.trim().toLowerCase()));
 
   useEffect(() => {if (searchOpen) searchInput.current?.focus();}, [searchOpen]);
   const rememberFocus = () => {focusReturn.current = document.activeElement as HTMLElement;};
@@ -46,21 +52,21 @@ export function Gallery() {
   };
   const openPanel = (next: typeof panel) => {rememberFocus(); setPanel(next);};
   return <MotionConfig reducedMotion="user"><LayoutGroup>
-    <Header mode={preferences.mode} onSettings={() => openPanel('settings')} onLogin={() => openPanel('login')} onSearch={() => setSearchOpen(value => !value)}
+    <Header mode={preferences.mode} onSettings={() => openPanel('settings')} onLogin={() => router.push(`/${locale}/login`)} onSearch={() => setSearchOpen(value => !value)}
       onTheme={() => update({mode: document.documentElement.dataset.mode === 'dark' ? 'light' : 'dark'})}
-      onHall={id => {if (id !== 'ai') openPanel(id); else {setCategory('all'); setQuery(''); window.scrollTo({top: 0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth'});}}} />
+      onHall={id => {if (id !== 'ai') router.push(`/${locale}/orgs`); else {setCategory('all'); setQuery(''); window.scrollTo({top: 0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth'});}}} />
     <main id="gallery" className="gallery-main">
       <section className="gallery-intro">
         <div><p className="eyebrow">{t('home.eyebrow')}</p><h1>{t('home.title').split('\n').map((part, i) => <span key={part}>{i > 0 && ' '}{part}</span>)}</h1><p className="intro-description">{t('home.subtitle')}</p></div>
         <span className="intro-hint"><span className="hint-dot" />{t('home.hint')}</span>
       </section>
       {searchOpen && <div className="search-field"><Search size={20} /><label className="sr-only" htmlFor="gallery-search">{t('shell.search')}</label><input ref={searchInput} id="gallery-search" value={query} onChange={event => setQuery(event.target.value)} placeholder={t('home.searchPlaceholder')} /><button className="icon-button" aria-label={query ? t('home.clearSearch') : t('shell.close')} onClick={() => {if (query) setQuery(''); else setSearchOpen(false);}}><X size={20} /></button></div>}
-      <div className="collection-caption"><span>{t('home.collection')}</span><span>{query ? t('home.results', {count: visibleItems.length}) : t('home.count')}</span></div>
+      <div className="collection-caption"><span>{t('home.collection')}</span><span>{query || catalog.length!==9 ? t('home.results', {count: visibleItems.length}) : t('home.count')}</span></div>
       {visibleItems.length > 0 ? <ShelfLayout items={visibleItems} category={category} onOpen={openItem} /> : <div className="empty-state"><Search size={32} /><h2>{t('home.noResults')}</h2><p>{t('home.noResultsHint')}</p><button className="pill-button" onClick={() => {setQuery(''); setCategory('all');}}>{t('home.reset')}<ArrowRight size={17} /></button></div>}
       <div className="category-section"><div className="category-bar" role="group" aria-label={t('home.filterLabel')}>{categories.map(value => <button key={value} aria-pressed={category === value} className={category === value ? 'selected' : ''} onClick={() => setCategory(value)}>{t(`categories.${value}`)}</button>)}</div></div>
-      <footer className="gallery-footer"><span>{t('home.footer')}</span><button onClick={() => openPanel('login')}>{t('home.invitation')}<ArrowUpRight size={14} /></button></footer>
+      <footer className="gallery-footer"><span>{t('home.footer')}</span><button onClick={() => router.push(`/${locale}/join`)}>{t('home.invitation')}<ArrowUpRight size={14} /></button></footer>
     </main>
-    <Modal open={!!activeItem} onClose={closeItem} title={activeItem?.name || ''} description={activeItem ? t(`ai.${activeItem.id}.summary`) : ''} className="stage-panel" returnFocus={focusReturn}>
+    <Modal open={!!activeItem} onClose={closeItem} title={activeItem?.name || ''} description={activeItem ? activeItem.content?.summary||t(`ai.${activeItem.id}.summary`) : ''} className="stage-panel" returnFocus={focusReturn}>
       {activeItem && <AiStage key={activeItem.id} item={activeItem} />}
     </Modal>
     <Modal open={panel !== null} onClose={() => setPanel(null)} title={panel === 'settings' ? t('settings.title') : t(panel === 'login' ? 'upcoming.loginTitle' : 'upcoming.title')} description={panel === 'settings' ? t('settings.description') : t(panel === 'login' ? 'upcoming.loginDescription' : 'upcoming.description')} className={panel === 'settings' ? 'settings-panel' : 'upcoming-panel'} returnFocus={focusReturn}>
