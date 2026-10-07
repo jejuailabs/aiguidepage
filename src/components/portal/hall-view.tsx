@@ -25,6 +25,8 @@ import { Modal } from "@/components/shell/modal";
 import { aiItems, type AiItem } from "@/data/ai";
 import { toAiItem } from "@/lib/ai-item";
 import { MediaPreview, MediaGallery, ReferenceImages } from "./media-gallery";
+import {useMobilePlatform} from "@/lib/use-mobile-platform";
+import {mobileAppHref} from "@/lib/mobile-launch";
 import {
   localize,
   type Viewer,
@@ -465,6 +467,7 @@ function PromptWorkbench({ item }: { item: PortalItem & { type: "prompt" } }) {
     (match, key) => values[key] || match,
   );
   const provider = aiItems.find((ai) => ai.id === item.data.aiSlug)!;
+  const mobile=useMobilePlatform(),mobileHref=mobileAppHref(provider,mobile);
   async function copy() {
     try {
       await navigator.clipboard.writeText(text);
@@ -503,8 +506,8 @@ function PromptWorkbench({ item }: { item: PortalItem & { type: "prompt" } }) {
         </button>
         <a
           className="outline-button"
-          href={provider.url}
-          target="_blank"
+          href={mobileHref||provider.url}
+          target={mobileHref?undefined:"_blank"}
           rel="noopener noreferrer"
           onClick={() => void copy()}
         >

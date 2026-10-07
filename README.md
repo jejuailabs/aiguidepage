@@ -8,6 +8,7 @@ AI 서비스를 선반형 전시관에서 둘러보고 실행하는 포털입니
 - 한국어·영어, 라이트·다크와 색상 4종, 글자 크기 3단계
 - 모바일 선반과 하단 메뉴, 키보드 탐색, 움직임 줄이기
 - Claude 데스크톱 앱 실행 링크와 웹·설치 안내
+- 메인 바로가기 설치·휴대폰 QR, 전용 선반 아이콘, 지원 AI의 모바일 앱 연결
 
 - Google·이메일 링크 로그인, 14일 HttpOnly 세션, 초대코드 가입, 조직 선택
 - 공용·조직별 콘텐츠, 결과물 중심 프롬프트 갤러리, 변수 입력·복사, 즐겨찾기
@@ -92,6 +93,16 @@ Vercel의 `FIREBASE_ADMIN_PRIVATE_KEY` 값에는 PEM 원문을 넣습니다. `.e
 - [docs/](docs/): 제품·디자인·데이터·배포 정의서
 - [승인된 메인 시안](output/imagegen/homepage-shelves-v1.png)
 - [브랜드 이미지 출처](public/brands/SOURCES.txt)
+
+## 바로가기·QR·모바일 앱
+
+메인의 ‘바탕화면 바로가기’는 지원 브라우저에서 웹 앱 설치 창을 띄웁니다. 선반 아이콘은 바탕화면·홈 화면·독에서 사용하고 독립 창으로 엽니다. 설치 창을 제공하지 않는 브라우저에는 Chrome·Edge·iPhone·Android별 추가 절차를 안내합니다. 바탕화면 생성과 최종 설치 확인은 브라우저에서 진행합니다.
+
+‘휴대폰으로 열기 · QR’에서 QR 이미지 저장·주소 복사를 제공합니다. QR은 현재 언어의 `https://aiguidepage.vercel.app/ko` 또는 `/en` 주소를 사용합니다. 배포 도메인을 바꾸면 빌드 전에 `NEXT_PUBLIC_SITE_URL`에 새 HTTPS 주소를 설정합니다.
+
+휴대폰의 AI 실행 버튼은 확인된 공식 앱 링크를 사용합니다. ChatGPT·Claude·Grok·Perplexity·NotebookLM·Suno는 iOS와 Android, Gemini는 Android, Flow Music은 iOS를 연결합니다. 나머지는 웹을 엽니다. 실제 앱 연결은 앱 설치와 기기의 링크 설정에 따르며, 사이트 열기·설치 안내를 함께 제공합니다. 물리 휴대폰·OS 설치 창은 배포 후 확인합니다.
+
+아이콘 원본은 `public/icons/gallery.svg`입니다. 수정 후 `node scripts/generate-app-icons.mjs`로 PNG·ICO를 다시 생성합니다.
 
 ## 프롬프트 샘플 등록
 

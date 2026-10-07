@@ -14,6 +14,7 @@ import {Settings} from './shell/settings';
 import {Modal} from './shell/modal';
 import {ShelfLayout} from './layouts/shelf';
 import {AiStage} from './item/ai-stage';
+import {ShortcutActions} from './shortcuts/shortcut-actions';
 
 const subscribeToLocation = (callback: () => void) => {
   window.addEventListener('popstate', callback); window.addEventListener('gallery-location', callback);
@@ -60,6 +61,7 @@ export function Gallery() {
         <div><p className="eyebrow">{t('home.eyebrow')}</p><h1>{t('home.title').split('\n').map((part, i) => <span key={part}>{i > 0 && ' '}{part}</span>)}</h1><p className="intro-description">{t('home.subtitle')}</p></div>
         <span className="intro-hint"><span className="hint-dot" />{t('home.hint')}</span>
       </section>
+      <ShortcutActions/>
       {searchOpen && <div className="search-field"><Search size={20} /><label className="sr-only" htmlFor="gallery-search">{t('shell.search')}</label><input ref={searchInput} id="gallery-search" value={query} onChange={event => setQuery(event.target.value)} placeholder={t('home.searchPlaceholder')} /><button className="icon-button" aria-label={query ? t('home.clearSearch') : t('shell.close')} onClick={() => {if (query) setQuery(''); else setSearchOpen(false);}}><X size={20} /></button></div>}
       <div className="collection-caption"><span>{t('home.collection')}</span><span>{query ? t('home.results', {count: visibleItems.length}) : t('home.count', {count: catalog.length})}</span></div>
       {visibleItems.length > 0 ? <ShelfLayout items={visibleItems} category={category} onOpen={openItem} /> : <div className="empty-state"><Search size={32} /><h2>{t('home.noResults')}</h2><p>{t('home.noResultsHint')}</p><button className="pill-button" onClick={() => {setQuery(''); setCategory('all');}}>{t('home.reset')}<ArrowRight size={17} /></button></div>}

@@ -17,6 +17,7 @@
   --suno-bg: #eea280; --suno-soft: #f5cab0; --suno-depth: #d97a77;
   --palette-gallery: #292e2b; --palette-ocean: #0b5cad; --palette-tangerine: #a8400b; --palette-forest: #1e6b45;
   --font-scale: 1;
+  --qr-paper: #fff;
 }
 :root[data-mode="dark"] {
   color-scheme: dark;

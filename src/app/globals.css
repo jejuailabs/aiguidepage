@@ -50,6 +50,26 @@ h1, h2, h3, p {margin: 0;}
 .gallery-intro h1 {margin-top: 12px; font-weight: 760; font-size: clamp(32px, 3.55vw, 52px); letter-spacing: -2.2px; line-height: 1.2; word-break: keep-all;}
 .intro-description {font-size: calc(19px * var(--font-scale)); color: var(--muted); margin-top: 17px; letter-spacing: -.55px; line-height: 1.6;}
 .intro-hint {font-size: calc(12px * var(--font-scale)); color: var(--muted); white-space: nowrap; display: flex; gap: 8px; align-items: center; padding-bottom: 7px;}
+.shortcut-actions {display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 0 24px 28px;}
+.shortcut-button {display: inline-flex; align-items: center; justify-content: center; gap: 9px; min-height: 48px; padding: 11px 18px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); font-size: calc(13px * var(--font-scale)); font-weight: 550; transition: background .2s, border-color .2s;}
+.shortcut-button svg {flex-shrink: 0;}
+.shortcut-button:hover {background: var(--surface-soft); border-color: var(--muted);}
+.shortcut-button:disabled {cursor: default; color: var(--muted);}
+.shortcut-actions > [role="status"] {font-size: .85em; color: var(--muted);}
+.shortcut-panel {width: min(560px, calc(100% - 40px));}
+.shortcut-content {padding: 54px 32px 30px; display: grid; gap: 20px; font-size: calc(15px * var(--font-scale)); line-height: 1.65;}
+.shortcut-brand {display: flex; align-items: center; gap: 17px;}
+.shortcut-brand img {border-radius: 17px; flex-shrink: 0; box-shadow: 0 3px 12px var(--shadow-soft);}
+.shortcut-brand h2 {font-size: calc(24px * var(--font-scale)); letter-spacing: -.6px; line-height: 1.35;}
+.shortcut-brand p, .shortcut-help, .shortcut-url {color: var(--muted); font-size: .9em;}
+.site-qr {display: grid; place-items: center; justify-self: center; width: min(100%, 272px); min-height: 256px; border-radius: 16px; background: var(--qr-paper); overflow: hidden;}
+.site-qr img {width: 100%; height: auto;}
+.site-qr p {padding: 16px; color: var(--cover-ink);}
+.shortcut-url {text-align: center; overflow-wrap: anywhere; user-select: all;}
+.install-steps {margin: 0; padding-left: 24px; list-style: decimal; display: grid; gap: 14px; overflow-wrap: anywhere;}
+.install-steps li::marker {font-weight: 700; color: var(--accent);}
+.mobile-app-help {margin-top: 14px; color: var(--muted); font-size: calc(12px * var(--font-scale)); line-height: 1.65;}
+.mobile-app-help .app-install-link {margin-top: 6px;}
 .hint-dot {width: 5px; height: 5px; border-radius: 50%; background: var(--accent); opacity: .55;}
 .collection-caption {display: flex; justify-content: space-between; margin: 8px 27px 25px; color: var(--muted); font-size: calc(10px * var(--font-scale)); letter-spacing: 1.8px; font-weight: 500;}
 .collection-caption span:last-child {letter-spacing: .2px; font-size: calc(11px * var(--font-scale));}
@@ -244,6 +264,12 @@ h1, h2, h3, p {margin: 0;}
  .gallery-main {padding: 0 18px 92px;}
  .gallery-intro {padding: 37px 8px 31px; display: block;}
  .gallery-intro .eyebrow {font-size: 8px; letter-spacing: 1.5px;}
+ .shortcut-actions {margin: -6px 8px 27px; gap: 8px;}
+ .shortcut-button {padding: 10px 13px; font-size: calc(12px * var(--font-scale));}
+ .shortcut-panel {width: 100%;}
+ .shortcut-content {padding: 54px 25px 28px;}
+ .shortcut-brand h2 {font-size: calc(22px * var(--font-scale));}
+ .launch-buttons > [data-mobile-launch] {margin-top: 0;}
  .gallery-intro h1 {font-size: calc(31px * min(var(--font-scale), 1.15)); letter-spacing: -1.5px; line-height: 1.24; margin-top: 15px;}
  .gallery-intro h1 span {display: block;}
  .intro-description {font-size: calc(14px * var(--font-scale)); letter-spacing: -.25px; margin-top: 14px; line-height: 1.6;}
