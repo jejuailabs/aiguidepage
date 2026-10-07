@@ -268,6 +268,73 @@ test("organization authorization, invite transactions, content and rules", async
     },
   );
   await t.test(
+    "prompt attachments require a finalized same-org or common upload",
+    async () => {
+      const asset = {
+        id: "00000000-0000-4000-8000-000000000001",
+        type: "image",
+        name: "reference.png",
+        url: "https://example.test/reference.png",
+        mime: "image/png",
+        size: 100,
+      };
+      const prompt = {
+        type: "prompt",
+        title: { ko: "첨부 검사", en: "Attachment test" },
+        summary: { ko: "검증", en: "Validation" },
+        category: "image",
+        order: 0,
+        status: "draft",
+        data: {
+          aiSlug: "gemini",
+          text: { ko: "이미지 사용", en: "Use the image" },
+          referenceImages: [asset],
+        },
+      };
+      await assert.rejects(
+        portal.saveItem(owner, "test-alpha", prompt, "media-check"),
+        expectCode("invalidMedia"),
+      );
+      const record = db.collection("mediaUploads").doc(asset.id);
+      await record.set({
+        state: "pending",
+        orgId: "test-alpha",
+        asset,
+        attachments: [],
+      });
+      await assert.rejects(
+        portal.saveItem(owner, "test-alpha", prompt, "media-check"),
+        expectCode("invalidMedia"),
+      );
+      await record.update({ state: "ready", orgId: "test-beta" });
+      await assert.rejects(
+        portal.saveItem(owner, "test-alpha", prompt, "media-check"),
+        expectCode("invalidMedia"),
+      );
+      await record.update({ orgId: "test-alpha" });
+      await portal.saveItem(owner, "test-alpha", prompt, "media-check");
+      assert.deepEqual((await record.get()).data().attachments, [
+        "orgs/test-alpha/items/media-check",
+      ]);
+      await assert.rejects(
+        portal.saveItem(owner, null, prompt, "media-check"),
+        expectCode("invalidMedia"),
+      );
+      await portal.saveItem(
+        owner,
+        "test-alpha",
+        { ...prompt, data: { ...prompt.data, referenceImages: [] } },
+        "media-check",
+      );
+      assert.deepEqual((await record.get()).data().attachments, []);
+      await record.update({ orgId: null });
+      await portal.saveItem(owner, "test-beta", prompt, "media-check");
+      assert.deepEqual((await record.get()).data().attachments, [
+        "orgs/test-beta/items/media-check",
+      ]);
+    },
+  );
+  await t.test(
     "Firestore rules deny forged membership, other tenants, private public reads and client writes",
     async () => {
       env = await initializeTestEnvironment({
@@ -319,6 +386,17 @@ test("organization authorization, invite transactions, content and rules", async
         ),
       );
       await assertFails(getDocs(collection(anon, "items")));
+      await assertFails(
+        getDoc(
+          doc(member, "mediaUploads/00000000-0000-4000-8000-000000000001"),
+        ),
+      );
+      await assertFails(
+        setDoc(
+          doc(member, "mediaUploads/00000000-0000-4000-8000-000000000001"),
+          { state: "ready" },
+        ),
+      );
       await db.doc("orgs/test-alpha").update({ status: "suspended" });
       await assertFails(getDoc(doc(member, "orgs/test-alpha")));
       await assert.rejects(

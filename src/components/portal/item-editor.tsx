@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { contentSchema, type Content, type PortalItem } from "@/lib/schema";
 import { aiItems } from "@/data/ai";
 import { api, ApiError } from "@/lib/client-api";
+import { MediaUploader } from "./media-uploader";
 
 const emptyText = { ko: "", en: "" };
 export function ItemEditor({
@@ -51,6 +52,14 @@ export function ItemEditor({
     [text, setText] = useState(
       item?.type === "prompt" ? item.data.text : emptyText,
     );
+  const [resultMedia, setResultMedia] = useState(
+      item?.type === "prompt" ? item.data.resultMedia : [],
+    ),
+    [referenceImages, setReferenceImages] = useState(
+      item?.type === "prompt" ? item.data.referenceImages : [],
+    ),
+    [resultUploading, setResultUploading] = useState(false),
+    [referenceUploading, setReferenceUploading] = useState(false);
   const [toolKey, setToolKey] = useState(
       item?.type === "tool" ? item.data.toolKey : "prompt-builder",
     ),
@@ -94,6 +103,7 @@ export function ItemEditor({
   );
   async function save(event: React.FormEvent) {
     event.preventDefault();
+    if (resultUploading || referenceUploading) return;
     setError("");
     if (status === "archived" && !window.confirm(t("archiveConfirm"))) return;
     setBusy(true);
@@ -132,6 +142,8 @@ export function ItemEditor({
         data = {
           aiSlug: provider,
           text,
+          resultMedia,
+          referenceImages,
           variables: keys.map(
             (key) =>
               (item?.type === "prompt"
@@ -288,6 +300,28 @@ export function ItemEditor({
           <p className="field-hint">
             {t("variableHint")} <code>{"{{name}}"}</code>
           </p>
+          <MediaUploader
+            value={resultMedia}
+            onChange={setResultMedia}
+            purpose="result"
+            orgId={
+              common
+                ? null
+                : endpoint.match(/\/orgs\/([^/]+)\/items/)?.[1] || ""
+            }
+            onBusyChange={setResultUploading}
+          />
+          <MediaUploader
+            value={referenceImages}
+            onChange={setReferenceImages}
+            purpose="reference"
+            orgId={
+              common
+                ? null
+                : endpoint.match(/\/orgs\/([^/]+)\/items/)?.[1] || ""
+            }
+            onBusyChange={setReferenceUploading}
+          />
         </>
       )}
       {type === "tool" && (
@@ -438,7 +472,10 @@ export function ItemEditor({
         </p>
       )}
       <div className="button-row">
-        <button className="pill-button" disabled={busy}>
+        <button
+          className="pill-button"
+          disabled={busy || resultUploading || referenceUploading}
+        >
           {t(busy ? "saving" : "save")}
         </button>
         <button type="button" className="outline-button" onClick={onCancel}>

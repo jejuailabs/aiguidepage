@@ -10,7 +10,7 @@ export const hallTemplates: Hall[] = [
   },
   {
     key: "prompts",
-    title: text("프롬프트", "Prompts"),
+    title: text("프롬프트 갤러리", "Prompt gallery"),
     order: 1,
     enabled: true,
   },
@@ -265,6 +265,8 @@ export function catalog(messages: {
           public: false,
           data: {
             aiSlug,
+            resultMedia: [],
+            referenceImages: [],
             text: text(bodyKo, bodyEn),
             variables: [...bodyEn.matchAll(/\{\{(\w+)\}\}/g)].map((match) => ({
               key: match[1],
@@ -302,26 +304,26 @@ export function catalog(messages: {
   ).entries()) {
     const copy = [
       [
-        "프롬프트 빌더",
-        "Prompt builder",
+        "프롬프트 만들기",
+        "Write a prompt",
         "목표와 말투를 골라 나만의 요청문을 만들어요.",
         "Choose a goal and tone to compose your request.",
       ],
       [
         "글자 수 세기",
-        "Character counter",
+        "Count characters",
         "공백과 이모지까지 고려한 글자 수를 확인해요.",
         "Count characters, including spaces and emoji.",
       ],
       [
-        "QR 코드 만들기",
-        "QR maker",
+        "QR코드 만들기",
+        "Create a QR code",
         "웹 주소를 입력하고 선명한 PNG로 저장해요.",
         "Turn a web address into a downloadable PNG.",
       ],
       [
-        "안내문 템플릿",
-        "Announcement template",
+        "안내문 만들기",
+        "Write an announcement",
         "빈칸을 채워 바로 쓸 수 있는 안내문을 만들어요.",
         "Fill the fields to prepare an announcement.",
       ],

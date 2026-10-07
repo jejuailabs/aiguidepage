@@ -24,6 +24,7 @@ import { AiStage } from "@/components/item/ai-stage";
 import { Modal } from "@/components/shell/modal";
 import { aiItems, type AiItem } from "@/data/ai";
 import { toAiItem } from "@/lib/ai-item";
+import { MediaPreview, MediaGallery, ReferenceImages } from "./media-gallery";
 import {
   localize,
   type Viewer,
@@ -178,7 +179,9 @@ export function HallView({
     return toAiItem(item, locale, keyOf(item));
   };
   const itemCategories = (item: PortalItem): string[] =>
-    item.type === "ai" ? asAi(item).categories || [item.category] : [item.category];
+    item.type === "ai"
+      ? asAi(item).categories || [item.category]
+      : [item.category];
   const visible = items.filter(
     (item) =>
       (filter === "all" || itemCategories(item).includes(filter)) &&
@@ -198,7 +201,9 @@ export function HallView({
         <LayoutGroup>
           <section className="portal-intro">
             <div>
-              <span className="eyebrow">{t(`hallEyebrow.${hall.key}`)}</span>
+              {hall.key !== "tools" && (
+                <span className="eyebrow">{t(`hallEyebrow.${hall.key}`)}</span>
+              )}
               <h1>{localize(hall.title, locale)}</h1>
               <p>{t(`hallDescription.${hall.key}`)}</p>
             </div>
@@ -253,13 +258,43 @@ export function HallView({
                   className={`content-card card-${hall.key}`}
                   key={keyOf(item)}
                 >
+                  {item.type === "prompt" && (
+                    <button
+                      className="prompt-result-cover"
+                      aria-label={t("viewResult", {
+                        title: localize(item.title, locale),
+                      })}
+                      onClick={(event) => open(item, event.currentTarget)}
+                    >
+                      {item.data.resultMedia.length ? (
+                        <MediaPreview
+                          asset={item.data.resultMedia[0]}
+                          alt={localize(item.title, locale)}
+                        />
+                      ) : item.data.resultText ? (
+                        <div className="result-text-preview">
+                          {localize(item.data.resultText, locale)}
+                        </div>
+                      ) : (
+                        <MediaPreview alt={localize(item.title, locale)} />
+                      )}
+                      {!!item.data.resultMedia.length && (
+                        <span className="media-count-badge">
+                          {t("resultCount", {
+                            count: item.data.resultMedia.length,
+                          })}
+                        </span>
+                      )}
+                    </button>
+                  )}
                   <div className="card-meta">
                     {item.type === "prompt" ? (
                       <button
                         className="provider-tag"
                         onClick={() => setAiFilter(item.data.aiSlug)}
                       >
-                        {item.data.aiSlug}
+                        {aiItems.find((ai) => ai.id === item.data.aiSlug)
+                          ?.name || item.data.aiSlug}
                       </button>
                     ) : (
                       <span className="tool-badge">
@@ -292,11 +327,14 @@ export function HallView({
                   >
                     <h2>{localize(item.title, locale)}</h2>
                     <p>{localize(item.summary, locale)}</p>
-                    {item.type === "prompt" && (
-                      <blockquote>
-                        {localize(item.data.text, locale)}
-                      </blockquote>
-                    )}
+                    {item.type === "prompt" &&
+                      !!item.data.referenceImages.length && (
+                        <span className="reference-count">
+                          {t("referenceCount", {
+                            count: item.data.referenceImages.length,
+                          })}
+                        </span>
+                      )}
                     {item.type === "game" && (
                       <div
                         className={`arcade-art art-${item.data.gameKey}`}
@@ -381,9 +419,11 @@ export function HallView({
                   <AiStage item={asAi(active)} />
                 ) : (
                   <div className="workbench">
-                    <span className="eyebrow">
-                      {t(`hallEyebrow.${hall.key}`)}
-                    </span>
+                    {active.type !== "tool" && (
+                      <span className="eyebrow">
+                        {t(`hallEyebrow.${hall.key}`)}
+                      </span>
+                    )}
                     <h2>{localize(active.title, locale)}</h2>
                     <p>{localize(active.summary, locale)}</p>
                     <Suspense fallback={<p role="status">{t("loading")}</p>}>
@@ -435,6 +475,9 @@ function PromptWorkbench({ item }: { item: PortalItem & { type: "prompt" } }) {
   }
   return (
     <div className="prompt-workbench">
+      <MediaGallery assets={item.data.resultMedia} />
+      <ReferenceImages assets={item.data.referenceImages} />
+      <h3>{t("promptText")}</h3>
       {item.data.variables.map((variable) => (
         <label key={variable.key}>
           {localize(variable.label, locale)}

@@ -17,7 +17,7 @@
   },
   "halls": {
     "ai": "AI 전시관",
-    "prompts": "프롬프트",
+    "prompts": "프롬프트 갤러리",
     "tools": "AI 도구",
     "games": "게임"
   },
@@ -365,7 +365,7 @@
     "noFavorites": "마음에 드는 콘텐츠에 별을 눌러보세요",
     "hall": {
       "ai": "AI 전시관",
-      "prompts": "프롬프트",
+      "prompts": "프롬프트 갤러리",
       "tools": "AI 도구",
       "games": "게임"
     },
@@ -377,8 +377,8 @@
     },
     "hallDescription": {
       "ai": "궁금한 AI를 골라 바로 시작해 보세요.",
-      "prompts": "좋은 질문 하나로, 새로운 아이디어를 시작하세요.",
-      "tools": "복잡한 일은 가볍게. 필요한 도구를 꺼내보세요.",
+      "prompts": "결과물을 보고 프롬프트를 골라 보세요. 필요한 참고 이미지도 함께 준비했어요.",
+      "tools": "원하는 기능을 선택하세요. 입력한 내용은 이 기기에서 처리됩니다.",
       "games": "잠깐 쉬어가며 머리를 깨워보세요."
     },
     "category": {
@@ -412,10 +412,10 @@
       "table": "표"
     },
     "tool": {
-      "prompt-builder": "프롬프트 도우미",
+      "prompt-builder": "프롬프트 만들기",
       "char-count": "글자 수 세기",
       "qr-maker": "QR코드 만들기",
-      "template-fill": "서식 채우기"
+      "template-fill": "안내문 만들기"
     },
     "game": {
       "memory-match": "AI 짝 맞추기",
@@ -458,7 +458,34 @@
       "selfChange": "자신의 관리자 권한은 여기서 바꿀 수 없어요.",
       "lastAdmin": "마지막 관리자를 변경하거나 내보낼 수 없어요.",
       "copyFailed": "복사하지 못했어요. 내용을 직접 선택해 복사해 주세요.",
-      "invalidUrl": "http 또는 https로 시작하는 올바른 주소를 입력해 주세요."
-    }
+      "invalidUrl": "http 또는 https로 시작하는 올바른 주소를 입력해 주세요.",
+      "tooManyMedia": "최대 {limit}개까지 올릴 수 있어요.",
+      "invalidFile": "지원하는 파일 형식과 용량을 확인해 주세요.",
+      "invalidMedia": "첨부 파일을 확인한 뒤 다시 저장해 주세요.",
+      "uploadFailed": "업로드하지 못했어요. 다시 시도해 주세요.",
+      "uploadCancelled": "업로드를 취소했어요.",
+      "uploadExpired": "업로드 시간이 지났어요. 파일을 다시 골라 주세요.",
+      "storageNotReady": "파일 저장소를 사용할 수 없어요. 관리자에게 알려 주세요.",
+      "downloadFailed": "이미지를 저장하지 못했어요. 이미지를 눌러 직접 저장해 주세요."
+    },
+    "resultGallery": "결과물",
+    "referenceImages": "참고 이미지",
+    "videoResult": "영상 결과물",
+    "noResultMedia": "결과물을 준비하고 있어요",
+    "showResult": "결과물 {number} 보기",
+    "viewResult": "{title} 결과 보기",
+    "resultCount": "결과물 {count}개",
+    "referenceCount": "참고 이미지 {count}개",
+    "referenceHint": "아래 이미지를 저장해 AI에 첨부한 다음, 프롬프트를 사용하세요.",
+    "viewReference": "참고 이미지 {number} 크게 보기",
+    "referenceNumber": "참고 이미지 {number}",
+    "saveReference": "이미지 {number} 저장",
+    "referenceUploadHint": "프롬프트를 실행할 때 필요한 샘플 이미지를 최대 3개 올려 주세요. JPEG·PNG·WebP, 파일당 8MB까지.",
+    "resultUploadHint": "만들어진 이미지나 영상을 최대 6개 올려 주세요. 이미지는 8MB, MP4·WebM 영상은 50MB까지. 첫 파일이 갤러리 표지가 됩니다.",
+    "addReferenceImages": "참고 이미지 추가",
+    "addResultMedia": "결과물 추가",
+    "removeMedia": "{name} 삭제",
+    "mediaCount": "{count} / {limit}개",
+    "uploading": "업로드 중 {progress}%"
   }
 }

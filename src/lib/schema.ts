@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { mediaAssetSchema } from "./media.ts";
 
 export const hallKeys = ["ai", "prompts", "tools", "games"] as const;
 export type HallKey = (typeof hallKeys)[number];
@@ -81,6 +82,8 @@ export const contentSchema = z
           .max(12)
           .default([]),
         resultText: l10nSchema.optional(),
+        resultMedia: z.array(mediaAssetSchema).max(6).default([]),
+        referenceImages: z.array(mediaAssetSchema.refine(asset => asset.type === "image")).max(3).default([]),
       }),
     }),
     base.extend({

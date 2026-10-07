@@ -17,7 +17,7 @@
   },
   "halls": {
     "ai": "AI Gallery",
-    "prompts": "Prompts",
+    "prompts": "Prompt gallery",
     "tools": "AI Tools",
     "games": "Games"
   },
@@ -365,7 +365,7 @@
     "noFavorites": "Star something you would like to revisit",
     "hall": {
       "ai": "AI gallery",
-      "prompts": "Prompts",
+      "prompts": "Prompt gallery",
       "tools": "Tools",
       "games": "Games"
     },
@@ -377,8 +377,8 @@
     },
     "hallDescription": {
       "ai": "Pick an AI and explore what is possible.",
-      "prompts": "Start a new idea with a good question.",
-      "tools": "Make everyday tasks a little easier.",
+      "prompts": "Choose a prompt by its results, with reference images ready to use.",
+      "tools": "Choose what you want to do. Your input is processed on this device.",
       "games": "Take a little break and wake up your mind."
     },
     "category": {
@@ -412,10 +412,10 @@
       "table": "a table"
     },
     "tool": {
-      "prompt-builder": "Prompt builder",
-      "char-count": "Character counter",
-      "qr-maker": "QR maker",
-      "template-fill": "Template assistant"
+      "prompt-builder": "Write a prompt",
+      "char-count": "Count characters",
+      "qr-maker": "Create a QR code",
+      "template-fill": "Write an announcement"
     },
     "game": {
       "memory-match": "AI memory match",
@@ -458,7 +458,34 @@
       "selfChange": "You cannot change your own administrator role here.",
       "lastAdmin": "You cannot remove or demote the last administrator.",
       "copyFailed": "Could not copy. Please select and copy the text manually.",
-      "invalidUrl": "Enter a valid HTTP or HTTPS URL."
-    }
+      "invalidUrl": "Enter a valid HTTP or HTTPS URL.",
+      "tooManyMedia": "You can add up to {limit} files.",
+      "invalidFile": "Check the supported file types and size limits.",
+      "invalidMedia": "Check the attachments and save again.",
+      "uploadFailed": "Upload failed. Please try again.",
+      "uploadCancelled": "Upload cancelled.",
+      "uploadExpired": "The upload expired. Select the file again.",
+      "storageNotReady": "File storage is unavailable. Please contact your administrator.",
+      "downloadFailed": "Could not save the image. Open it to save it directly."
+    },
+    "resultGallery": "Results",
+    "referenceImages": "Reference images",
+    "videoResult": "Video result",
+    "noResultMedia": "A sample is coming soon",
+    "showResult": "View result {number}",
+    "viewResult": "View results for {title}",
+    "resultCount": "{count} results",
+    "referenceCount": "{count} reference images",
+    "referenceHint": "Save these images and attach them to the AI before using the prompt.",
+    "viewReference": "View reference image {number}",
+    "referenceNumber": "Reference image {number}",
+    "saveReference": "Save image {number}",
+    "referenceUploadHint": "Add up to 3 sample images needed for this prompt. JPEG, PNG or WebP, up to 8MB each.",
+    "resultUploadHint": "Add up to 6 finished images or videos. Images up to 8MB; MP4 or WebM videos up to 50MB. The first file becomes the gallery cover.",
+    "addReferenceImages": "Add reference images",
+    "addResultMedia": "Add results",
+    "removeMedia": "Remove {name}",
+    "mediaCount": "{count} / {limit}",
+    "uploading": "Uploading {progress}%"
   }
 }

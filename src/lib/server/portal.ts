@@ -497,13 +497,51 @@ export async function saveItem(
   const item = contentSchema.parse(input),
     collection = id ? orgRef(id).collection("items") : db().collection("items");
   const ref = collection.doc(itemId ? validId(itemId) : randomUUID());
-  const existing = await ref.get();
-  await ref.set({
-    ...item,
-    public: id ? false : item.public,
-    createdAt: existing.data()?.createdAt || FieldValue.serverTimestamp(),
-    updatedAt: FieldValue.serverTimestamp(),
-    updatedBy: viewer.uid,
+  await db().runTransaction(async (tx) => {
+    const existing = await tx.get(ref);
+    const assets =
+      item.type === "prompt"
+        ? [...item.data.resultMedia, ...item.data.referenceImages]
+        : [];
+    const oldData = existing.data()?.data;
+    const oldIds = [
+      ...(oldData?.resultMedia || []),
+      ...(oldData?.referenceImages || []),
+    ].map((asset) => asset.id as string);
+    const ids = Array.from(
+      new Set([...assets.map((asset) => asset.id), ...oldIds]),
+    );
+    const records = ids.length
+      ? await tx.getAll(
+          ...ids.map((mediaId) => db().collection("mediaUploads").doc(mediaId)),
+        )
+      : [];
+    for (const asset of assets) {
+      const record = records.find((record) => record.id === asset.id)?.data();
+      if (
+        !record ||
+        record.state !== "ready" ||
+        (record.orgId !== null && record.orgId !== id) ||
+        Object.entries(asset).some(
+          ([key, value]) => record.asset?.[key] !== value,
+        )
+      )
+        throw new PortalError("invalidMedia");
+    }
+    tx.set(ref, {
+      ...item,
+      public: id ? false : item.public,
+      createdAt: existing.data()?.createdAt || FieldValue.serverTimestamp(),
+      updatedAt: FieldValue.serverTimestamp(),
+      updatedBy: viewer.uid,
+    });
+    for (const record of records)
+      if (record.exists)
+        tx.update(record.ref, {
+          attachments: assets.some((asset) => asset.id === record.id)
+            ? FieldValue.arrayUnion(ref.path)
+            : FieldValue.arrayRemove(ref.path),
+        });
   });
   return { id: ref.id };
 }
