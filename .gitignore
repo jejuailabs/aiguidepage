@@ -11,3 +11,7 @@ test-results/
 .dev-error.log
 .cache/
 next.config.compiled.js
+*firebase-adminsdk*.json
+service-account*.json
+*.pem
+*.key
