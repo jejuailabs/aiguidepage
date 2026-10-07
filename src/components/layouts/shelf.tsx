@@ -12,7 +12,7 @@ export function ShelfLayout({items, category, onOpen}: {items: AiItem[]; categor
   const rows = Array.from({length: Math.ceil(items.length / perShelf)}, (_, i) => items.slice(i * perShelf, (i + 1) * perShelf));
   return <div className="shelves">
     {rows.map((row, index) => <section className="shelf-row" key={index} aria-label={t('shelfLabel', {number: index + 1})}>
-      <div className="shelf-items">{row.map(item => <AiCard key={item.id} item={item} dimmed={category !== 'all' && item.category !== category} onOpen={onOpen} />)}</div>
+      <div className="shelf-items">{row.map(item => <AiCard key={item.id} item={item} dimmed={category !== 'all' && item.category !== category && !item.categories?.includes(category)} onOpen={onOpen} />)}</div>
       <div className="physical-shelf" aria-hidden="true"><div className="shelf-top" /><div className="shelf-front" /></div>
     </section>)}
   </div>;

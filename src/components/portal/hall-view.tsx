@@ -22,7 +22,8 @@ import { PortalShell } from "./portal-shell";
 import { ShelfLayout } from "@/components/layouts/shelf";
 import { AiStage } from "@/components/item/ai-stage";
 import { Modal } from "@/components/shell/modal";
-import { aiItems, type AiItem, type Category } from "@/data/ai";
+import { aiItems, type AiItem } from "@/data/ai";
+import { toAiItem } from "@/lib/ai-item";
 import {
   localize,
   type Viewer,
@@ -174,39 +175,17 @@ export function HallView({
     }
   }
   const asAi = (item: PortalItem): AiItem => {
-    if (item.type !== "ai") throw new Error("Expected AI item");
-    const base = aiItems.find((ai) => ai.id === item.data.aiId);
-    const category = (
-      ["chat", "search", "documents", "video", "music"].includes(item.category)
-        ? item.category
-        : "chat"
-    ) as Exclude<Category, "all">;
-    return {
-      id: keyOf(item),
-      name: localize(item.title, locale),
-      category,
-      url: item.data.url,
-      logo: base?.logo || "",
-      coverId: base?.id || "custom",
-      desktopApp: base?.url === item.data.url ? base.desktopApp : undefined,
-      content: {
-        summary: localize(item.summary, locale),
-        description: localize(item.data.description, locale),
-        features:
-          locale === "en" && item.data.features.en.length
-            ? item.data.features.en
-            : item.data.features.ko,
-        prompt: localize(item.data.prompt, locale),
-      },
-    };
+    return toAiItem(item, locale, keyOf(item));
   };
+  const itemCategories = (item: PortalItem): string[] =>
+    item.type === "ai" ? asAi(item).categories || [item.category] : [item.category];
   const visible = items.filter(
     (item) =>
-      (filter === "all" || item.category === filter) &&
+      (filter === "all" || itemCategories(item).includes(filter)) &&
       (aiFilter === "all" ||
         (item.type === "prompt" && item.data.aiSlug === aiFilter)),
   );
-  const categories = Array.from(new Set(items.map((item) => item.category)));
+  const categories = Array.from(new Set(items.flatMap(itemCategories)));
   return (
     <PortalShell
       viewer={viewer}
