@@ -1,0 +1,35 @@
+name: Checks
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 21
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run i18n:check
+      - run: npm run test:admin
+      - run: node --experimental-strip-types --test tests/csrf.node.mjs tests/content-query.node.mjs
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - run: npx firebase emulators:exec --only auth,firestore --project demo-aiguide "node scripts/test-emulated.mjs"
+      - uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: test-diagnostics
+          path: test-results/
