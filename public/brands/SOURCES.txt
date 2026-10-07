@@ -1,0 +1,17 @@
+Brand assets for identifying the linked services.
+
+claude-color.svg, openai.svg, gemini-color.svg, grok.svg, perplexity.svg,
+notebooklm.svg, google-color.svg, suno.svg:
+LobeHub lobe-icons, @lobehub/icons-static-svg 1.95.1.
+https://github.com/lobehub/lobe-icons
+See LICENSE-lobe-icons.txt for the MIT license. Service trademarks remain
+the property of their respective owners.
+
+genspark.svg:
+Official Genspark square icon, downloaded without modification.
+https://www.genspark.ai/brand/genspark
+https://cdn1.genspark.ai/user-upload-image/admin/brand/genspark/logos/icon-square.svg
+Genspark brand guidelines apply.
+
+Cover backgrounds are original CSS artwork. Google Flow is represented by
+Google's brand icon; the icon does not imply a separate Flow product mark.

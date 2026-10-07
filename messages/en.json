@@ -1,0 +1,175 @@
+{
+  "meta": {
+    "title": "AI Gallery — Find your next AI",
+    "description": "Conversation, research, documents, film and music. Find the right AI on our shelves."
+  },
+  "shell": {
+    "brand": "AI Gallery",
+    "settings": "View settings",
+    "darkMode": "Dark appearance",
+    "search": "Search AI",
+    "login": "Log in",
+    "close": "Close",
+    "skip": "Skip to the gallery",
+    "navigation": "Gallery navigation",
+    "newWindow": "Opens in a new tab",
+    "back": "Back to the gallery"
+  },
+  "halls": {
+    "ai": "AI Gallery",
+    "prompts": "Prompts",
+    "tools": "AI Tools",
+    "games": "Games"
+  },
+  "home": {
+    "eyebrow": "A LITTLE CURIOSITY, ENDLESS POSSIBILITIES",
+    "title": "A little curiosity.\nA new possibility.",
+    "subtitle": "Find an AI that makes your day a little easier.",
+    "hint": "Pick a card to get to know it",
+    "collection": "THE AI COLLECTION",
+    "count": "9 AIs. Endless possibilities.",
+    "filterLabel": "Explore by interest",
+    "searchPlaceholder": "Search a name or something you want to do",
+    "clearSearch": "Clear search",
+    "noResults": "That AI isn't on our shelves yet.",
+    "noResultsHint": "Try another name or topic.",
+    "reset": "Explore them all",
+    "footer": "New possibilities, a little closer.",
+    "invitation": "Have an invitation code?",
+    "shelfLabel": "AI shelf {number}",
+    "results": "Found {count} AIs"
+  },
+  "categories": {
+    "all": "All",
+    "chat": "Chat",
+    "search": "Search",
+    "documents": "Documents",
+    "video": "Video",
+    "music": "Music"
+  },
+  "item": {
+    "open": "Open",
+    "explain": "Details",
+    "openSite": "Open website",
+    "more": "A closer look",
+    "less": "Show less",
+    "canDo": "What you can do",
+    "try": "Try asking this",
+    "copy": "Copy prompt",
+    "copied": "Copied",
+    "copyFailed": "Couldn't copy. Select the text and copy it manually.",
+    "privacy": "Keep personal and confidential information out of your prompts.",
+    "provider": "Check each service for its current pricing and terms.",
+    "language": "Try a conversation in your language",
+    "explore": "MEET YOUR NEXT AI"
+  },
+  "launch": {
+    "openApp": "Open desktop app",
+    "install": "Get the app",
+    "installedHint": "The app needs to be installed on your computer.",
+    "requested": "Requested to open the app.",
+    "confirmHint": "If your browser asks, choose Open to continue.",
+    "fallback": "If it doesn't open, use the website or install the app."
+  },
+  "settings": {
+    "eyebrow": "YOUR GALLERY, YOUR WAY",
+    "title": "Make yourself at home",
+    "description": "A few little adjustments for a better view.",
+    "language": "Language",
+    "appearance": "Appearance",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System",
+    "palette": "Gallery palette",
+    "gallery": "Gallery",
+    "ocean": "Ocean",
+    "tangerine": "Tangerine",
+    "forest": "Forest",
+    "fontSize": "Text size",
+    "normal": "Default",
+    "large": "Larger",
+    "largest": "Largest",
+    "saved": "Your choices are remembered on this device."
+  },
+  "upcoming": {
+    "title": "Our next exhibition is on its way",
+    "description": "Useful prompts, little tools, and playful games. We're thoughtfully filling the next shelves.",
+    "loginTitle": "A shared gallery is on its way",
+    "loginDescription": "Organization login and invitation codes are coming soon. Meanwhile, you're welcome to explore and open every AI here.",
+    "continue": "Explore the AI gallery"
+  },
+  "ai": {
+    "claude": {
+      "summary": "Make complex thoughts clear, and good writing better.",
+      "description": "A thoughtful partner for reading documents, organizing ideas, and finding the right words.",
+      "feature1": "Summarize long documents",
+      "feature2": "Write and refine natural prose",
+      "feature3": "Organize ideas and work with code",
+      "prompt": "Write a friendly invitation to a community AI workshop. Keep it simple and make the schedule and things to bring easy to find."
+    },
+    "chatgpt": {
+      "summary": "From everyday questions to your next big idea.",
+      "description": "Talk through your questions, explore ideas, and get a little help with writing, learning, and everyday life.",
+      "feature1": "Explain unfamiliar topics simply",
+      "feature2": "Write and brainstorm new ideas",
+      "feature3": "Plan your learning and everyday tasks",
+      "prompt": "Suggest five practical ways a beginner can use AI. Add a simple everyday example for each one."
+    },
+    "gemini": {
+      "summary": "Bring a wider perspective to everyday questions.",
+      "description": "Google's AI helps you explore ideas, ask questions about text and images, and put information together.",
+      "feature1": "Understand text and images",
+      "feature2": "Explore ideas and draft writing",
+      "feature3": "Organize everyday information",
+      "prompt": "Suggest indoor activities for a rainy weekend in Jeju with older family members. Prioritize places that are comfortable to visit."
+    },
+    "grok": {
+      "summary": "A fresh perspective, just a conversation away.",
+      "description": "Explore different viewpoints and expand your thinking through a conversation about the things that interest you.",
+      "feature1": "Talk about a range of topics",
+      "feature2": "Explore ideas and perspectives",
+      "feature3": "Understand unfamiliar concepts",
+      "prompt": "Suggest five fun activities for a smartphone class for older adults. Make them hands-on and easy to join."
+    },
+    "perplexity": {
+      "summary": "Search, understand, and follow the sources.",
+      "description": "Ask a question, explore an answer, and check the linked sources to learn more.",
+      "feature1": "Search by asking a question",
+      "feature2": "Follow sources behind an answer",
+      "feature3": "Compare information across sources",
+      "prompt": "Explain what Jeju's Gotjawal forests are and why they matter. Include sources I can read to learn more."
+    },
+    "genspark": {
+      "summary": "Turn scattered information into something useful.",
+      "description": "Organize research and develop ideas for documents and presentations.",
+      "feature1": "Research a topic",
+      "feature2": "Plan documents and presentations",
+      "feature3": "Organize ideas for work",
+      "prompt": "Create a plan for a four-week community AI course. Include learning goals and a practical activity for each week."
+    },
+    "notebooklm": {
+      "summary": "A research partner that knows your materials.",
+      "description": "Ask questions about the sources you add, organize their key ideas, and build a deeper understanding.",
+      "feature1": "Ask questions about your sources",
+      "feature2": "Summarize several documents",
+      "feature3": "Explore and understand study materials",
+      "prompt": "Summarize the five key ideas in these materials. Use plain language that a first-time reader can understand."
+    },
+    "flow": {
+      "summary": "Turn the scene in your mind into a moving story.",
+      "description": "Explore visual ideas, create scenes, and bring your imagination into motion.",
+      "feature1": "Describe a scene in words",
+      "feature2": "Explore moods and movement",
+      "feature3": "Create short video concepts",
+      "prompt": "A peaceful Jeju beach at sunset, silver grass swaying slowly in the breeze, gentle waves. A warm, cinematic moment."
+    },
+    "suno": {
+      "summary": "Let a little imagination become your own music.",
+      "description": "Describe a mood and a topic to start creating a song. No musical experience needed.",
+      "feature1": "Create songs for a mood",
+      "feature2": "Turn lyric ideas into music",
+      "feature3": "Explore different musical styles",
+      "prompt": "A bright acoustic song about walking by the sea in Jeju. Soft guitar, warm vocals, and lyrics about simple moments with friends."
+    }
+  }
+}

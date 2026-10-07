@@ -1,0 +1,21 @@
+Generation mode: built-in image_gen
+Asset: homepage-shelves-v1.png
+
+Use case: ui-mockup.
+Asset type: one complete desktop homepage concept image for a Korean AI discovery portal, wide landscape 16:10, high resolution.
+Primary request: Show the ENTIRE MAIN WEBPAGE with NINE AI service album-cover cards PHYSICALLY STANDING ON TWO WHITE DISPLAY SHELVES. The shelves and their contact with the cards must be unmistakable. This is a website screenshot concept, not an isolated card image and not a room photo.
+
+Page design: polished, restrained gallery aesthetic. Warm light-gray wall, soft central spotlight, long white floating shelves with visible depth and front edges, realistic soft shadows on the wall below each shelf. Straight-on camera to the web page. White and charcoal interface, tiny muted-green accent only. Spacious composition, clear Korean typography, accessible large labels.
+
+Layout:
+- At top, a slim navigation header with a small simple gallery icon and Korean wordmark "AI 전시관" on the left. Navigation across the middle: "AI 전시관", "프롬프트", "AI 도구", "게임". First section active with a restrained underline. At right show a small sun/moon switch, "보기 설정", and a black pill "로그인". Crisp understated interface.
+- Intro below header, left aligned with gallery content: large headline exactly "오늘은 어떤 AI를 만나볼까요?" and smaller line exactly "궁금한 AI를 골라 바로 시작해 보세요."
+- The large central gallery occupies most of the page. TWO LONG, SUBSTANTIAL WHITE SHELVES, each with a clearly visible horizontal top surface, a thin front fascia, and a cast shadow. Shelf 1 holds FIVE square album covers standing vertically, evenly spaced, their BOTTOM EDGES RESTING DIRECTLY ON THE SHELF. Shelf 2 holds FOUR covers, centered evenly, likewise resting directly on its shelf. Cards have a little believable thickness and contact shadow, like art books or vinyl sleeves in a gallery display. Do not place cards in generic floating UI boxes.
+- First row covers, left to right: "Claude", "ChatGPT", "Gemini", "Grok", "Perplexity".
+- Second row covers, left to right: "Genspark", "NotebookLM", "Google Flow", "Suno".
+- Each square cover has one prominent recognizable corresponding service symbol and its service name legibly printed near its lower edge. Original tasteful cover backgrounds: Claude warm peach with sunburst; ChatGPT pale mint/ivory and black knot; Gemini soft blue/lilac and multicolor four-point sparkle; Grok charcoal with white symbol; Perplexity deep teal with white geometric symbol; Genspark pale sky blue; NotebookLM cream with black notebook-inspired symbol; Google Flow subtle cinematic pink/blue gradient; Suno warm coral/orange. Carefully designed collection, quiet and premium. No duplicated services.
+- Show subtle interactive affordance on the ChatGPT cover: two small overlay pills near the bottom "열기 ↗" and "설명", without obscuring the ChatGPT name. All other cards at rest on the shelves.
+- Below the lower shelf, centered compact category bar with "전체" as the selected dark pill, then "대화", "검색", "문서", "영상", "음악" as clean text options. Generous bottom breathing room.
+
+Composition: balanced full-width desktop web design, entire header, headline, both shelves, every cover, and bottom filters all visible. Art-directed material depth for shelves and covers, flat crisp typography for webpage UI. Square covers around 150px at a 1440px-wide design equivalent; shelves and shadows clearly visible with ample vertical spacing. No bottom clipping.
+Constraints: generate ONE complete homepage image. Shelves with standing covers are the central defining visual. No isolated single cover, no collage of separate screens, no browser chrome, no laptop/phone mockup, no people, no room floor or furniture, no dashboard sidebars, no generic rounded card grid, no Shopify text or assets, no watermark. Do not add extra sections, pricing, or invented marketing badges.

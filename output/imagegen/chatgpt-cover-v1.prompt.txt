@@ -1,0 +1,12 @@
+Generation mode: built-in image_gen
+Asset: chatgpt-cover-v1.png
+
+Use case: stylized-concept.
+Asset type: one square album-cover image to sit on the shelf of a Korean AI discovery gallery website.
+Primary request: Create a polished ChatGPT display-card cover, 1:1 square, full bleed, straight-on flat artwork, suitable for a 240px thumbnail and an enlarged detail view.
+Scene/backdrop: a warm ivory and very pale forest-green studio background, with subtle mint translucent curved planes forming a quiet abstract landscape in the lower half. Soft daylight, delicate ambient shadows, lots of breathing room.
+Subject: the recognizable OpenAI six-loop interwoven knot emblem, accurately proportioned, solid near-black, clean and flat, centered prominently in the upper-middle. Keep the actual emblem undistorted and clearly readable. Surrounding abstract shapes are separate from the emblem.
+Style/medium: refined contemporary gallery catalogue cover with subtle tactile paper texture and softly rendered three-dimensional background forms. Calm, approachable, elegant and readable for older nontechnical visitors.
+Composition/framing: image itself is the square cover; no external scene, shelf, frame, mockup perspective or browser UI. Generous internal margins, near-black emblem about 35% of canvas width. Near bottom left, large crisp sans-serif title.
+Text (verbatim): "ChatGPT"
+Constraints: only the exact title ChatGPT, no other text. Dark title on pale background. No buttons, no badges, no Shopify assets, no additional logos, no watermark. Not a neon cyberpunk or robot illustration. Opaque background.
