@@ -116,6 +116,8 @@ PC의 ‘바탕화면 바로가기’는 페이지 주소가 담긴 링크입니
 
 ## 프롬프트 샘플 등록
 
+프롬프트·도구·게임은 최근 게시한 순서로 노출합니다. 공통 콘텐츠 목록의 ‘상단 고정’ 버튼으로 앞에 둘 수 있으며, 고정 항목끼리는 ‘상단 고정 순서’ 숫자가 작은 항목부터 표시됩니다. 수정이나 고정 변경은 게시 날짜를 바꾸지 않습니다. 기존 데이터에 정렬 정보를 추가할 때는 `node --env-file=.env.local --conditions=react-server --experimental-strip-types scripts/migrate-content-order.mjs --apply`를 실행합니다. 생략하면 변경 없이 대상 수만 확인하며, 이미 처리한 항목은 건너뜁니다.
+
 메인의 프롬프트·도구·게임은 조직 가입 없이 공용 공개 콘텐츠를 바로 엽니다. [프롬프트 갤러리](https://aiguidepage.vercel.app/ko/prompts), [AI 도구](https://aiguidepage.vercel.app/ko/tools), [게임](https://aiguidepage.vercel.app/ko/games)에서 사용합니다. `/ko/platform`의 ‘공용 콘텐츠’에서 관리하며, 공개 표시와 게시 상태를 모두 선택한 항목만 나타납니다. 조직 전용 항목은 계속 조직 구성원에게만 제공합니다.
 
 기존 기본 템플릿의 공개 표시를 이전하려면 `node --env-file-if-exists=.env.local --conditions=react-server --experimental-strip-types scripts/publish-starter-halls.mjs --apply`를 실행합니다. 관리자가 편집한 비공개 콘텐츠는 보존합니다.

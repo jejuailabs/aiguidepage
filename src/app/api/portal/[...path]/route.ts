@@ -5,7 +5,7 @@ import { assertMutation, failure, jsonBody, result } from "@/lib/server/http";
 import { PortalError } from "@/lib/server/errors";
 import * as portal from "@/lib/server/portal";
 import { hallKeys, type HallKey } from "@/lib/schema";
-import {saveAiCategorySettings} from '@/lib/server/ai-categories';
+import { saveAiCategorySettings } from "@/lib/server/ai-categories";
 export const runtime = "nodejs";
 type Context = { params: Promise<{ path: string[] }> };
 async function handle(request: NextRequest, context: Context) {
@@ -34,11 +34,34 @@ async function handle(request: NextRequest, context: Context) {
       );
     if (key === "platform" && method === "GET")
       return result(await portal.platformOverview(viewer));
-    if(key==='platform/ai'&&method==='GET')return result(await portal.aiOverview(viewer));
-    if(key==='platform/ai/categories'&&method==='POST')return result(await saveAiCategorySettings(viewer,body));
+    if (key === "platform/ai" && method === "GET")
+      return result(await portal.aiOverview(viewer));
+    if (key === "platform/ai/categories" && method === "POST")
+      return result(await saveAiCategorySettings(viewer, body));
     if (key === "platform/orgs" && method === "POST")
       return result(await portal.createOrg(viewer, body));
-    if (path[0] === "platform" && path[1] === "items" && method === "POST")
+    if (
+      path[0] === "platform" &&
+      path[1] === "items" &&
+      path[2] &&
+      path[3] === "pin" &&
+      path.length === 4 &&
+      method === "POST"
+    )
+      return result(
+        await portal.pinItem(
+          viewer,
+          null,
+          path[2],
+          z.object({ pinned: z.boolean() }).parse(body).pinned,
+        ),
+      );
+    if (
+      path[0] === "platform" &&
+      path[1] === "items" &&
+      path.length <= 3 &&
+      method === "POST"
+    )
       return result(await portal.saveItem(viewer, null, body, path[2]));
     if (path[0] === "orgs" && path[1]) {
       const id = path[1],
@@ -66,7 +89,22 @@ async function handle(request: NextRequest, context: Context) {
           ),
         );
       }
-      if (action === "items" && method === "POST")
+      if (
+        action === "items" &&
+        path[3] &&
+        path[4] === "pin" &&
+        path.length === 5 &&
+        method === "POST"
+      )
+        return result(
+          await portal.pinItem(
+            viewer,
+            id,
+            path[3],
+            z.object({ pinned: z.boolean() }).parse(body).pinned,
+          ),
+        );
+      if (action === "items" && path.length <= 4 && method === "POST")
         return result(await portal.saveItem(viewer, id, body, path[3]));
       if (action === "search" && method === "GET")
         return result({

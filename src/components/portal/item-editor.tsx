@@ -50,6 +50,7 @@ export function ItemEditor({
     [order, setOrder] = useState(item?.order || 0),
     [status, setStatus] = useState(item?.status || "published"),
     [isPublic, setPublic] = useState(item?.public ?? (aiOnly && common)),
+    [pinned, setPinned] = useState(item?.pinned || false),
     [busy, setBusy] = useState(false),
     [error, setError] = useState("");
   const [url, setUrl] = useState(item?.type === "ai" ? item.data.url : ""),
@@ -138,6 +139,7 @@ export function ItemEditor({
         order,
         status,
         public: common && isPublic,
+        ...(type !== "ai" ? { pinned } : {}),
       };
       let data;
       if (type === "ai")
@@ -298,13 +300,14 @@ export function ItemEditor({
           </label>
         )}
         <label>
-          {t("order")}
+          {t(type === "ai" ? "order" : "pinnedOrder")}
           <input
             type="number"
             min={0}
             max={100000}
             value={order}
             onChange={(e) => setOrder(Number(e.target.value))}
+            disabled={type !== "ai" && !pinned}
           />
         </label>
         <label>
@@ -321,6 +324,19 @@ export function ItemEditor({
           </select>
         </label>
       </div>
+      {type !== "ai" && (
+        <div>
+          <button
+            type="button"
+            className="outline-button"
+            aria-pressed={pinned}
+            onClick={() => setPinned(!pinned)}
+          >
+            {t(pinned ? "unpinContent" : "pinContent")}
+          </button>
+          <p className="field-hint">{t("contentOrderHint")}</p>
+        </div>
+      )}
       {type === "ai" && (
         <>
           <label>

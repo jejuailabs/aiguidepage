@@ -4,6 +4,7 @@ import en from "../../../messages/en.json" with { type: "json" };
 import { catalog } from "../../data/catalog.ts";
 import { publicHallItems } from "./portal.ts";
 import type { HallKey, PortalItem } from "../schema.ts";
+import { compareContent } from "../content-order.ts";
 export async function getPublicHall(
   hall: Exclude<HallKey, "ai">,
 ): Promise<PortalItem[]> {
@@ -20,5 +21,11 @@ export async function getPublicHall(
         value.item.public &&
         value.item.status === "published",
     )
-    .map(({ id, item }) => ({ ...item, id, scope: "common", createdAt: 0 }));
+    .map(({ id, item }): PortalItem => ({
+      ...item,
+      id,
+      scope: "common",
+      createdAt: 0,
+    }))
+    .sort(compareContent);
 }

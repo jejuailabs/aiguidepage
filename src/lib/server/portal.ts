@@ -23,6 +23,7 @@ import {
 } from "../schema.ts";
 import { PortalError } from "./errors.ts";
 import { readContentPage } from "./content-query.ts";
+import { contentRank, compareContent } from "../content-order.ts";
 import { getAiCategorySettings } from "./ai-categories.ts";
 import {
   aiCategorySettingsSchema,
@@ -49,6 +50,8 @@ const asItem = (
     ...(orgId ? { orgId } : {}),
     createdAt: data?.createdAt?.toMillis?.() || 0,
     updatedAt: data?.updatedAt?.toMillis?.() || 0,
+    publishedAt:
+      data?.publishedAt?.toMillis?.() || data?.createdAt?.toMillis?.() || 0,
   };
 };
 export const itemKey = (item: Pick<PortalItem, "scope" | "id">) =>
@@ -162,17 +165,18 @@ async function allItems(
   scope: "common" | "org",
   id?: string,
   scan: Query = query,
+  sortField = "order",
 ) {
   const items: PortalItem[] = [];
   let last: DocumentSnapshot | undefined;
   for (;;) {
     let page = query
-      .orderBy("order")
+      .orderBy(sortField)
       .orderBy(FieldPath.documentId())
       .limit(100);
     if (last) page = page.startAfter(last);
     let fallback = scan
-      .orderBy("order")
+      .orderBy(sortField)
       .orderBy(FieldPath.documentId())
       .limit(100);
     if (last) fallback = fallback.startAfter(last);
@@ -191,10 +195,23 @@ export async function publicItems() {
     (item) => item.status === "published" && item.type === "ai" && item.public,
   );
 }
-export async function publicHallItems(hall:Exclude<HallKey,'ai'>){
-  const collection=db().collection('items');
-  const items=await allItems(collection.where('status','==','published').where('type','==',hallType[hall]),'common',undefined,collection);
-  return items.filter(item=>item.status==='published'&&item.public&&item.type===hallType[hall]);
+export async function publicHallItems(hall: Exclude<HallKey, "ai">) {
+  const collection = db().collection("items");
+  const items = await allItems(
+    collection
+      .where("status", "==", "published")
+      .where("type", "==", hallType[hall]),
+    "common",
+    undefined,
+    collection,
+    "feedRank",
+  );
+  return items.filter(
+    (item) =>
+      item.status === "published" &&
+      item.public &&
+      item.type === hallType[hall],
+  );
 }
 export async function hallItems(
   viewer: Viewer,
@@ -217,9 +234,8 @@ export async function hallItems(
     .where("status", "==", "published")
     .where("type", "==", hallType[hall]);
   const cursor = decodeCursor(rawCursor);
-  const compare = (a: PortalItem, b: PortalItem) =>
-    a.order - b.order ||
-    (itemKey(a) < itemKey(b) ? -1 : itemKey(a) > itemKey(b) ? 1 : 0);
+  const sortField = hall === "ai" ? "order" : "feedRank";
+  const compare = compareContent;
   const adjust = (items: PortalItem[]) =>
     items
       .filter(
@@ -240,8 +256,14 @@ export async function hallItems(
     const items = adjust(
       (
         await Promise.all([
-          allItems(common, "common", undefined, db().collection("items")),
-          allItems(own, "org", id, orgRef(id).collection("items")),
+          allItems(
+            common,
+            "common",
+            undefined,
+            db().collection("items"),
+            sortField,
+          ),
+          allItems(own, "org", id, orgRef(id).collection("items"), sortField),
         ])
       ).flat(),
     ).sort(compare);
@@ -268,7 +290,7 @@ export async function hallItems(
     let more = true;
     while (items.length < 13 && more) {
       let page = query
-        .orderBy("order")
+        .orderBy(sortField)
         .orderBy(FieldPath.documentId())
         .limit(13);
       if (position) page = page.startAfter(position.order, position.id);
@@ -277,7 +299,7 @@ export async function hallItems(
           ? db().collection("items")
           : orgRef(id).collection("items")
       )
-        .orderBy("order")
+        .orderBy(sortField)
         .orderBy(FieldPath.documentId())
         .limit(13);
       if (position) fallback = fallback.startAfter(position.order, position.id);
@@ -285,7 +307,7 @@ export async function hallItems(
       more = snapshot.size === 13;
       for (const doc of snapshot.docs) {
         const item = asItem(doc, scope, scope === "org" ? id : undefined);
-        position = { order: item.order, id: item.id };
+        position = { order: contentRank(item), id: item.id };
         if (
           item.status === "published" &&
           item.type === hallType[hall] &&
@@ -304,7 +326,7 @@ export async function hallItems(
     items = merged.slice(0, 12);
   const next: FeedCursor = { common: cursor.common, org: cursor.org };
   for (const item of items)
-    next[item.scope] = { order: item.order, id: item.id };
+    next[item.scope] = { order: contentRank(item), id: item.id };
   if (!a.items.length) next.common = a.position;
   if (!b.items.length) next.org = b.position;
   return {
@@ -551,9 +573,24 @@ export async function saveItem(
       )
         throw new PortalError("invalidMedia");
     }
+    const now = Timestamp.now();
+    const publishedAt =
+      item.status === "published" && existing.data()?.status !== "published"
+        ? now
+        : existing.data()?.publishedAt || existing.data()?.createdAt || now;
     tx.set(ref, {
       ...item,
       public: id ? false : item.public,
+      ...(item.type !== "ai"
+        ? {
+            publishedAt,
+            feedRank: contentRank({
+              ...item,
+              createdAt: 0,
+              publishedAt: publishedAt.toMillis(),
+            }),
+          }
+        : {}),
       createdAt: existing.data()?.createdAt || FieldValue.serverTimestamp(),
       updatedAt: FieldValue.serverTimestamp(),
       updatedBy: viewer.uid,
@@ -567,6 +604,26 @@ export async function saveItem(
         });
   });
   return { id: ref.id };
+}
+export async function pinItem(
+  viewer: Viewer,
+  id: string | null,
+  itemId: string,
+  pinned: boolean,
+) {
+  if (id) await requireOrg(viewer, id, true);
+  else if (!viewer.platformAdmin) throw new PortalError("forbidden", 403);
+  const ref = (
+    id ? orgRef(id).collection("items") : db().collection("items")
+  ).doc(validId(itemId));
+  await db().runTransaction(async (tx) => {
+    const snapshot = await tx.get(ref);
+    if (!snapshot.exists) throw new PortalError("notFound", 404);
+    const item = asItem(snapshot, id ? "org" : "common", id || undefined);
+    if (item.type === "ai") throw new PortalError("invalid");
+    tx.update(ref, { pinned, feedRank: contentRank({ ...item, pinned }) });
+  });
+  return { ok: true };
 }
 export async function updateMember(
   viewer: Viewer,
@@ -636,7 +693,7 @@ export async function platformOverview(viewer: Viewer) {
           ).data().count,
         })),
       ),
-      items: items.docs.map((d) => asItem(d, "common")),
+      items: items.docs.map((d) => asItem(d, "common")).sort(compareContent),
     }),
   );
 }

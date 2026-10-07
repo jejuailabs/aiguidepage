@@ -15,13 +15,20 @@ import {
   query,
   where,
 } from "firebase/firestore";
-import { Timestamp } from "firebase-admin/firestore";
+import { Timestamp, FieldValue } from "firebase-admin/firestore";
+import { migrateContentOrder } from "../scripts/migrate-content-order.mjs";
 import { getFirebaseAdminFirestore } from "../src/lib/firebase/admin.ts";
 import * as portal from "../src/lib/server/portal.ts";
 import { seed } from "../scripts/seed.mjs";
 import { contentSchema } from "../src/lib/schema.ts";
-import {aiCategoryIds,defaultAiCategories} from '../src/lib/ai-categories.ts';
-import {getAiCategorySettings,saveAiCategorySettings} from '../src/lib/server/ai-categories.ts';
+import {
+  aiCategoryIds,
+  defaultAiCategories,
+} from "../src/lib/ai-categories.ts";
+import {
+  getAiCategorySettings,
+  saveAiCategorySettings,
+} from "../src/lib/server/ai-categories.ts";
 
 if (
   process.env.GCLOUD_PROJECT !== "demo-aiguide" ||
@@ -71,28 +78,102 @@ test("organization authorization, invite transactions, content and rules", async
   await portal.ensureProfile(owner);
   await portal.createOrg(owner, orgInput("test-alpha"));
   await portal.createOrg(owner, orgInput("test-beta"));
-  await t.test('AI categories require an operator, preserve removals and reject stale saves',async()=>{
-    const initial=await getAiCategorySettings();
-    assert.deepEqual(initial,{revision:0,categories:defaultAiCategories});
-    await assert.rejects(portal.aiOverview(alice),expectCode('forbidden'));
-    await assert.rejects(saveAiCategorySettings(alice,initial),expectCode('forbidden'));
-    const input={...initial,categories:[...initial.categories,{id:'photo',title:{ko:'사진',en:'Photo'},enabled:true}]};
-    const races=await Promise.allSettled([saveAiCategorySettings(owner,input),saveAiCategorySettings(owner,input)]);
-    assert.equal(races.filter(result=>result.status==='fulfilled').length,1);
-    assert.equal(races.find(result=>result.status==='rejected').reason.code,'changedReload');
-    const settings=await getAiCategorySettings();
-    await assert.rejects(saveAiCategorySettings(owner,{...settings,categories:settings.categories.filter(c=>c.id!=='image')}),expectCode('invalid'));
-    const original=(await portal.aiOverview(owner)).items.find(item=>item.data.aiId==='chatgpt');
-    assert(aiCategoryIds(original).includes('image'));
-    await portal.saveItem(owner,null,{...original,category:'chat',data:{...original.data,categories:['chat']}},original.id);
-    const updated=(await portal.publicItems()).find(item=>item.id===original.id);
-    assert.deepEqual(aiCategoryIds(updated),['chat']);
-    await assert.rejects(portal.saveItem(owner,null,{...original,category:'unknown',data:{...original.data,categories:['unknown']}},original.id),expectCode('invalid'));
-    await portal.saveItem(owner,null,{...original,category:'photo',data:{...original.data,categories:['photo']}},original.id);
-    assert.deepEqual(aiCategoryIds((await portal.publicItems()).find(item=>item.id===original.id)),['photo']);
-    await portal.saveItem(owner,null,original,original.id);
-    await saveAiCategorySettings(owner,{...settings,categories:settings.categories.map(category=>category.id==='photo'?{...category,enabled:false}:category)});
-  });
+  await t.test(
+    "AI categories require an operator, preserve removals and reject stale saves",
+    async () => {
+      const initial = await getAiCategorySettings();
+      assert.deepEqual(initial, {
+        revision: 0,
+        categories: defaultAiCategories,
+      });
+      await assert.rejects(portal.aiOverview(alice), expectCode("forbidden"));
+      await assert.rejects(
+        saveAiCategorySettings(alice, initial),
+        expectCode("forbidden"),
+      );
+      const input = {
+        ...initial,
+        categories: [
+          ...initial.categories,
+          { id: "photo", title: { ko: "사진", en: "Photo" }, enabled: true },
+        ],
+      };
+      const races = await Promise.allSettled([
+        saveAiCategorySettings(owner, input),
+        saveAiCategorySettings(owner, input),
+      ]);
+      assert.equal(
+        races.filter((result) => result.status === "fulfilled").length,
+        1,
+      );
+      assert.equal(
+        races.find((result) => result.status === "rejected").reason.code,
+        "changedReload",
+      );
+      const settings = await getAiCategorySettings();
+      await assert.rejects(
+        saveAiCategorySettings(owner, {
+          ...settings,
+          categories: settings.categories.filter((c) => c.id !== "image"),
+        }),
+        expectCode("invalid"),
+      );
+      const original = (await portal.aiOverview(owner)).items.find(
+        (item) => item.data.aiId === "chatgpt",
+      );
+      assert(aiCategoryIds(original).includes("image"));
+      await portal.saveItem(
+        owner,
+        null,
+        {
+          ...original,
+          category: "chat",
+          data: { ...original.data, categories: ["chat"] },
+        },
+        original.id,
+      );
+      const updated = (await portal.publicItems()).find(
+        (item) => item.id === original.id,
+      );
+      assert.deepEqual(aiCategoryIds(updated), ["chat"]);
+      await assert.rejects(
+        portal.saveItem(
+          owner,
+          null,
+          {
+            ...original,
+            category: "unknown",
+            data: { ...original.data, categories: ["unknown"] },
+          },
+          original.id,
+        ),
+        expectCode("invalid"),
+      );
+      await portal.saveItem(
+        owner,
+        null,
+        {
+          ...original,
+          category: "photo",
+          data: { ...original.data, categories: ["photo"] },
+        },
+        original.id,
+      );
+      assert.deepEqual(
+        aiCategoryIds(
+          (await portal.publicItems()).find((item) => item.id === original.id),
+        ),
+        ["photo"],
+      );
+      await portal.saveItem(owner, null, original, original.id);
+      await saveAiCategorySettings(owner, {
+        ...settings,
+        categories: settings.categories.map((category) =>
+          category.id === "photo" ? { ...category, enabled: false } : category,
+        ),
+      });
+    },
+  );
   const invite = await portal.createInvite(owner, "test-alpha", {
     role: "member",
     days: 1,
@@ -220,13 +301,63 @@ test("organization authorization, invite transactions, content and rules", async
       assert.equal(items.length, 25);
       assert.equal(new Set(items.map(portal.itemKey)).size, 25);
       assert.ok(!items.some((i) => i.id === "prompt-email"));
+      await portal.pinItem(owner, null, 'prompt-meeting', true);
+      const pinnedPages = await readAll();
+      assert.equal(pinnedPages[0].id, 'prompt-meeting');
+      assert.equal(new Set(pinnedPages.map(portal.itemKey)).size, 25);
+      await portal.pinItem(owner, null, 'prompt-meeting', false);
       await portal.saveOverride(owner, "test-alpha", "prompt-revise", {
         hidden: false,
         order: 0,
       });
+      await portal.pinItem(owner, null, "prompt-revise", true);
       const reordered = await readAll();
       assert.equal(reordered.length, 25);
       assert.ok(reordered.findIndex((i) => i.id === "prompt-revise") < 3);
+      await portal.pinItem(owner, null, "prompt-revise", false);
+    },
+  );
+  await t.test(
+    "newest posts, pinning permissions, publication dates and legacy migration",
+    async () => {
+      const ref = db.doc("items/prompt-meeting");
+      const before = (await ref.get()).data();
+      await portal.saveItem(owner, null, {...before, status:'draft'}, 'prompt-meeting');
+      await ref.update({publishedAt:Timestamp.fromMillis(1)});
+      await portal.saveItem(owner, null, before, "prompt-meeting");
+      assert.ok((await ref.get()).data().publishedAt.toMillis() > 1);
+      await ref.update({publishedAt:before.publishedAt,feedRank:before.feedRank});
+      assert.equal(
+        (await ref.get()).data().publishedAt.toMillis(),
+        before.publishedAt.toMillis(),
+      );
+      await assert.rejects(
+        portal.pinItem(alice, null, "prompt-meeting", true),
+        expectCode("forbidden"),
+      );
+      await assert.rejects(
+        portal.pinItem(owner, null, "claude", true),
+        expectCode("invalid"),
+      );
+      await portal.pinItem(owner, null, "prompt-meeting", true);
+      assert.equal(
+        (await portal.publicHallItems("prompts"))[0].id,
+        "prompt-meeting",
+      );
+      await portal.pinItem(owner, null, "prompt-meeting", false);
+      const legacy = db.doc("items/legacy-order");
+      await legacy.set({
+        ...before,
+        createdAt: Timestamp.fromMillis(1),
+      });
+      await legacy.update({publishedAt: FieldValue.delete(), feedRank: FieldValue.delete()});
+      assert.equal((await migrateContentOrder(db, false)).updated, 1);
+      assert.equal((await legacy.get()).data().feedRank, undefined);
+      assert.equal((await migrateContentOrder(db, true)).updated, 1);
+      const posts = await portal.publicHallItems("prompts");
+      assert.equal(posts.at(-1).id, "legacy-order");
+      assert.equal((await migrateContentOrder(db, true)).updated, 0);
+      await legacy.delete();
     },
   );
   await t.test(
@@ -398,13 +529,17 @@ test("organization authorization, invite transactions, content and rules", async
       await assertFails(
         setDoc(doc(admin, "items/claude"), { status: "archived" }),
       );
-      const template=(await db.doc('items/prompt-meeting').get()).data();
-      await db.doc('items/private-common').set({...template,public:false});
+      const template = (await db.doc("items/prompt-meeting").get()).data();
+      await db.doc("items/private-common").set({ ...template, public: false });
       await assertSucceeds(getDoc(doc(anon, "items/prompt-meeting")));
-      await assertFails(getDoc(doc(anon, 'items/private-common')));
-      const publicPrompts=await portal.publicHallItems('prompts');
-      assert(publicPrompts.some(item=>item.id==='prompt-meeting'));
-      assert(!publicPrompts.some(item=>item.id==='private-common'||item.scope==='org'));
+      await assertFails(getDoc(doc(anon, "items/private-common")));
+      const publicPrompts = await portal.publicHallItems("prompts");
+      assert(publicPrompts.some((item) => item.id === "prompt-meeting"));
+      assert(
+        !publicPrompts.some(
+          (item) => item.id === "private-common" || item.scope === "org",
+        ),
+      );
       await assertFails(getDoc(doc(unverified, "orgs/test-alpha")));
       await assertSucceeds(
         getDocs(

@@ -1,6 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
-import { FieldValue } from "firebase-admin/firestore";
+import { FieldValue, Timestamp } from "firebase-admin/firestore";
+import { contentRank } from "../src/lib/content-order.ts";
 import { getFirebaseAdminFirestore } from "../src/lib/firebase/admin.ts";
 import { catalog, hallTemplates } from "../src/data/catalog.ts";
 import { contentSchema, hallSchema } from "../src/lib/schema.ts";
@@ -30,8 +31,19 @@ export async function seed(db = getFirebaseAdminFirestore()) {
   for (const { ref, data } of docs) {
     const added = await db.runTransaction(async (tx) => {
       if ((await tx.get(ref)).exists) return false;
+      const now = Timestamp.now();
       tx.create(ref, {
         ...data,
+        ...(data.type && data.type !== "ai"
+          ? {
+              publishedAt: now,
+              feedRank: contentRank({
+                ...data,
+                createdAt: now.toMillis(),
+                publishedAt: now.toMillis(),
+              }),
+            }
+          : {}),
         createdAt: FieldValue.serverTimestamp(),
         updatedAt: FieldValue.serverTimestamp(),
       });

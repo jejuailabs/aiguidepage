@@ -44,6 +44,7 @@ const base = z.object({
   order: z.number().int().min(0).max(100000),
   status: z.enum(["draft", "published", "archived"]),
   public: z.boolean().default(false),
+  pinned: z.boolean().optional(),
 });
 export const contentSchema = z
   .discriminatedUnion("type", [
@@ -173,6 +174,7 @@ export type PortalItem = Content & {
   orgId?: string;
   createdAt: number;
   updatedAt?: number;
+  publishedAt?: number;
 };
 export type Hall = z.infer<typeof hallSchema>;
 export type Org = Omit<z.infer<typeof orgSchema>, "firstAdminEmail"> & {

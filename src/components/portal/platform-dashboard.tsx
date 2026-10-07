@@ -8,6 +8,7 @@ import { ItemEditor } from "./item-editor";
 import { Link } from "@/i18n/navigation";
 import { api } from "@/lib/client-api";
 import { localize, type Org, type Viewer, type PortalItem } from "@/lib/schema";
+import { compareContent } from "@/lib/content-order";
 type Data = { orgs: (Org & { memberCount: number })[]; items: PortalItem[] };
 const contentTypes = ["prompt", "tool", "game"] as const;
 type CommonContentType = (typeof contentTypes)[number];
@@ -28,7 +29,10 @@ export function PlatformDashboard({
     [editing, setEditing] = useState<PortalItem | null | undefined>(undefined),
     [code, setCode] = useState(""),
     [error, setError] = useState(false);
-  const typeItems = data.items.filter((item) => item.type === contentType);
+  const [pinning, setPinning] = useState<string | null>(null);
+  const typeItems = data.items
+    .filter((item) => item.type === contentType)
+    .sort(compareContent);
   const categories = [...new Set(typeItems.map((item) => item.category))];
   const visibleItems = typeItems.filter(
     (item) => category === "all" || item.category === category,
@@ -40,6 +44,20 @@ export function PlatformDashboard({
       setData(await api<Data>("/api/portal/platform"));
     } catch {
       setError(true);
+    }
+  }
+  async function togglePin(item: PortalItem) {
+    setPinning(item.id);
+    setError(false);
+    try {
+      await api(`/api/portal/platform/items/${item.id}/pin`, {
+        pinned: !item.pinned,
+      });
+      await refresh();
+    } catch {
+      setError(true);
+    } finally {
+      setPinning(null);
     }
   }
   return (
@@ -195,14 +213,26 @@ export function PlatformDashboard({
                     <strong>{localize(item.title, locale)}</strong>
                     <small>
                       {categoryName(item.category)} · {t(item.status)}
+                      {item.pinned && ` · ${t("pinnedContent")}`}
                     </small>
                   </div>
-                  <button
-                    className="outline-button"
-                    onClick={() => setEditing(item)}
-                  >
-                    {t("edit")}
-                  </button>
+                  <div className="button-row">
+                    <button
+                      className="outline-button"
+                      aria-pressed={!!item.pinned}
+                      disabled={pinning !== null}
+                      onClick={() => void togglePin(item)}
+                    >
+                      {t(item.pinned ? "unpinContent" : "pinContent")}
+                    </button>
+                    <button
+                      className="outline-button"
+                      disabled={pinning !== null}
+                      onClick={() => setEditing(item)}
+                    >
+                      {t("edit")}
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
