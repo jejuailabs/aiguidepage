@@ -3,6 +3,24 @@ import AxeBuilder from '@axe-core/playwright';
 import {mkdirSync} from 'node:fs';
 mkdirSync('output/qa', {recursive: true});
 
+test('mobile categories stay above shelves while desktop categories stay below',async({page})=>{
+  await page.emulateMedia({reducedMotion:'reduce'});
+  await page.goto('/ko');
+  await page.setViewportSize({width:390,height:844});
+  const category=page.locator('.category-section'),shelves=page.locator('.shelves');
+  expect((await category.boundingBox())!.y).toBeLessThan((await shelves.boundingBox())!.y);
+  await page.getByRole('button',{name:'이미지',exact:true}).click();
+  await expect(page.locator('[data-item="chatgpt"]')).not.toHaveClass(/is-dimmed/);
+  await page.evaluate(()=>window.scrollTo(0,650));
+  expect(Math.abs((await category.boundingBox())!.y)).toBeLessThan(2);
+  await page.screenshot({path:'output/qa/categories-mobile.png'});
+  await page.setViewportSize({width:1440,height:1000});
+  await expect.poll(()=>category.evaluate(element=>getComputedStyle(element).order)).toBe('3');
+  await expect(page.locator('.shelf-row')).toHaveCount(2);
+  const lastShelf=page.locator('.shelf-row').last(),lastBounds=(await lastShelf.boundingBox())!;
+  expect((await category.boundingBox())!.y).toBeGreaterThan(lastBounds.y+lastBounds.height);
+});
+
 test('desktop shelf, rollover, and keyboard/history navigation', async ({page}) => {
   const errors: string[] = [];
   page.on('pageerror', error => errors.push(error.message));

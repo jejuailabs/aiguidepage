@@ -20,6 +20,8 @@ import { getFirebaseAdminFirestore } from "../src/lib/firebase/admin.ts";
 import * as portal from "../src/lib/server/portal.ts";
 import { seed } from "../scripts/seed.mjs";
 import { contentSchema } from "../src/lib/schema.ts";
+import {aiCategoryIds,defaultAiCategories} from '../src/lib/ai-categories.ts';
+import {getAiCategorySettings,saveAiCategorySettings} from '../src/lib/server/ai-categories.ts';
 
 if (
   process.env.GCLOUD_PROJECT !== "demo-aiguide" ||
@@ -69,6 +71,28 @@ test("organization authorization, invite transactions, content and rules", async
   await portal.ensureProfile(owner);
   await portal.createOrg(owner, orgInput("test-alpha"));
   await portal.createOrg(owner, orgInput("test-beta"));
+  await t.test('AI categories require an operator, preserve removals and reject stale saves',async()=>{
+    const initial=await getAiCategorySettings();
+    assert.deepEqual(initial,{revision:0,categories:defaultAiCategories});
+    await assert.rejects(portal.aiOverview(alice),expectCode('forbidden'));
+    await assert.rejects(saveAiCategorySettings(alice,initial),expectCode('forbidden'));
+    const input={...initial,categories:[...initial.categories,{id:'photo',title:{ko:'사진',en:'Photo'},enabled:true}]};
+    const races=await Promise.allSettled([saveAiCategorySettings(owner,input),saveAiCategorySettings(owner,input)]);
+    assert.equal(races.filter(result=>result.status==='fulfilled').length,1);
+    assert.equal(races.find(result=>result.status==='rejected').reason.code,'changedReload');
+    const settings=await getAiCategorySettings();
+    await assert.rejects(saveAiCategorySettings(owner,{...settings,categories:settings.categories.filter(c=>c.id!=='image')}),expectCode('invalid'));
+    const original=(await portal.aiOverview(owner)).items.find(item=>item.data.aiId==='chatgpt');
+    assert(aiCategoryIds(original).includes('image'));
+    await portal.saveItem(owner,null,{...original,category:'chat',data:{...original.data,categories:['chat']}},original.id);
+    const updated=(await portal.publicItems()).find(item=>item.id===original.id);
+    assert.deepEqual(aiCategoryIds(updated),['chat']);
+    await assert.rejects(portal.saveItem(owner,null,{...original,category:'unknown',data:{...original.data,categories:['unknown']}},original.id),expectCode('invalid'));
+    await portal.saveItem(owner,null,{...original,category:'photo',data:{...original.data,categories:['photo']}},original.id);
+    assert.deepEqual(aiCategoryIds((await portal.publicItems()).find(item=>item.id===original.id)),['photo']);
+    await portal.saveItem(owner,null,original,original.id);
+    await saveAiCategorySettings(owner,{...settings,categories:settings.categories.map(category=>category.id==='photo'?{...category,enabled:false}:category)});
+  });
   const invite = await portal.createInvite(owner, "test-alpha", {
     role: "member",
     days: 1,

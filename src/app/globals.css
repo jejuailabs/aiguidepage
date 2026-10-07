@@ -45,6 +45,12 @@ h1, h2, h3, p {margin: 0;}
 .login-button svg {display: none;}
 .mobile-nav {display: none;}
 .gallery-main {max-width: 1424px; margin: 0 auto; padding: 0 48px;}
+.gallery-collection {display: flex; flex-direction: column;}
+.gallery-collection > .collection-caption {order: 1;}
+.gallery-collection > .shelves, .gallery-collection > .empty-state {order: 2;}
+.gallery-collection > .category-section {order: 3;}
+.gallery-footer-links {display: flex; align-items: center; flex-wrap: wrap; gap: 20px;}
+.gallery-footer-links a {display: inline-flex; align-items: center; min-height: 48px;}
 .gallery-intro {padding: 34px 24px 23px; display: flex; align-items: flex-end; justify-content: space-between; gap: 20px;}
 .eyebrow {display: block; font-size: calc(10px * var(--font-scale)); font-weight: 600; letter-spacing: 2.25px; color: var(--muted); line-height: 1.6;}
 .gallery-intro h1 {margin-top: 12px; font-weight: 760; font-size: clamp(32px, 3.55vw, 52px); letter-spacing: -2.2px; line-height: 1.2; word-break: keep-all;}
@@ -96,6 +102,7 @@ h1, h2, h3, p {margin: 0;}
 .cover-chatgpt {--cover-bg: var(--chatgpt-bg); --cover-soft: var(--chatgpt-soft); --cover-depth: var(--chatgpt-depth);}
 .cover-chatgpt .art-layer.one {left: -77%; bottom: -34%; transform: rotate(36deg);}
 .cover-gemini {--cover-bg: var(--gemini-bg); --cover-soft: var(--gemini-soft); --cover-depth: var(--gemini-depth);}
+.cover-custom {--cover-bg: var(--gemini-bg); --cover-soft: var(--gemini-soft); --cover-depth: var(--gemini-depth);}
 .cover-gemini .service-logo {width: 46%; height: 46%; left: 27%; top: 19%;}
 .cover-grok {--cover-bg: var(--grok-bg); --cover-soft: var(--grok-soft); --cover-depth: var(--grok-depth); color: var(--cover-white);}
 .cover-grok .service-logo, .cover-perplexity .service-logo, .cover-suno .service-logo {filter: brightness(0) invert(1);}
@@ -281,8 +288,11 @@ h1, h2, h3, p {margin: 0;}
  .physical-shelf {height: 21px; filter: drop-shadow(0 12px 10px var(--shadow));}
  .shelf-top {height: 10px; clip-path: polygon(2.5% 0, 97.5% 0, 100% 100%, 0 100%);}
  .shelf-front {height: 14px;}
- .category-section {margin-top: -5px; padding: 0 0 25px;}
- .category-bar {gap: 3px;}
+ .gallery-collection > .category-section {order: 0; position: sticky; top: 0; z-index: 4; margin: 0 0 22px; padding: 7px 0; background: var(--bg); border-bottom: 1px solid var(--line);}
+ .gallery-collection .category-bar {gap: 3px; width: 100%; justify-content: flex-start; flex-wrap: nowrap; overflow-x: auto; padding: 5px; scrollbar-width: thin; scroll-padding-inline: 5px;}
+ .gallery-collection .category-bar button {flex-shrink: 0;}
+ .gallery-footer {flex-wrap: wrap;}
+ .gallery-footer-links {gap: 16px;}
  .category-bar button {min-width: 43px; font-size: calc(12px * var(--font-scale)); padding: 9px 13px; min-height: 48px;}
  .gallery-footer {margin: 0 8px; padding: 17px 0 12px; font-size: calc(10px * var(--font-scale)); gap: 6px;}
  .gallery-footer button {gap: 1px; font-size: calc(10px * var(--font-scale)); text-align: right;}

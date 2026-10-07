@@ -1,11 +1,15 @@
 import { z } from "zod";
 import { mediaAssetSchema } from "./media.ts";
+import { aiCategoryIdSchema } from "./ai-categories.ts";
 
 export const hallKeys = ["ai", "prompts", "tools", "games"] as const;
 export type HallKey = (typeof hallKeys)[number];
 export const l10nSchema = z.object({
   ko: z.string().trim().min(1).max(10000),
   en: z.string().trim().max(10000).default(""),
+});
+const optionalL10n = l10nSchema.extend({
+  ko: z.string().trim().max(10000).default(""),
 });
 const webUrl = z
   .string()
@@ -48,12 +52,18 @@ export const contentSchema = z
       data: z.object({
         url: webUrl,
         aiId: z.string().max(50).optional(),
-        description: l10nSchema,
+        categories: z
+          .array(aiCategoryIdSchema)
+          .min(1)
+          .max(30)
+          .refine((values) => new Set(values).size === values.length)
+          .optional(),
+        description: optionalL10n,
         features: z.object({
           ko: z.array(z.string().max(500)).max(12),
           en: z.array(z.string().max(500)).max(12),
         }),
-        prompt: l10nSchema,
+        prompt: optionalL10n,
       }),
     }),
     base.extend({
@@ -83,7 +93,10 @@ export const contentSchema = z
           .default([]),
         resultText: l10nSchema.optional(),
         resultMedia: z.array(mediaAssetSchema).max(6).default([]),
-        referenceImages: z.array(mediaAssetSchema.refine(asset => asset.type === "image")).max(3).default([]),
+        referenceImages: z
+          .array(mediaAssetSchema.refine((asset) => asset.type === "image"))
+          .max(3)
+          .default([]),
       }),
     }),
     base.extend({
@@ -116,6 +129,16 @@ export const contentSchema = z
     }),
   ])
   .superRefine((item, ctx) => {
+    if (
+      item.type === "ai" &&
+      item.data.categories &&
+      !item.data.categories.includes(item.category)
+    )
+      ctx.addIssue({
+        code: "custom",
+        path: ["category"],
+        message: "Primary category must be selected",
+      });
     if (item.type === "game" && item.data.gameKey === "ai-quiz") {
       if (!item.data.questions?.length)
         ctx.addIssue({

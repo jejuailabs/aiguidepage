@@ -1,4 +1,4 @@
-export type Category = 'all' | 'chat' | 'search' | 'documents' | 'image' | 'video' | 'music';
+export type Category = string;
 export type DesktopPlatform = 'windows' | 'macos' | 'linux';
 export type DesktopApp = {
   launchUrl: string;
@@ -8,7 +8,7 @@ export type DesktopApp = {
   checkedAt: string;
 };
 export type MobileApp={iosUrl?:string;androidUrl?:string;androidPackage?:string;installUrl:string;checkedAt:string};
-export type AiItem = {id: string; name: string; category: Exclude<Category, 'all'>; categories?: Exclude<Category, 'all'>[]; url: string; logo: string; desktopApp?: DesktopApp;mobileApp?:MobileApp;coverId?:string;content?:{summary:string;description:string;features:string[];prompt:string}};
+export type AiItem = {id: string; name: string; category: Exclude<Category, 'all'>; categories?: Exclude<Category, 'all'>[];categoryLabels?:string[]; url: string; logo: string; desktopApp?: DesktopApp;mobileApp?:MobileApp;coverId?:string;content?:{summary:string;description:string;features:string[];prompt:string}};
 export const categories: Category[] = ['all', 'chat', 'search', 'documents', 'image', 'video', 'music'];
 export const aiItems: AiItem[] = [
   {id: 'claude', name: 'Claude', category: 'chat', url: 'https://claude.ai', logo: 'claude-color.svg', desktopApp: {

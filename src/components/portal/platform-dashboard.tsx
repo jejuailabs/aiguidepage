@@ -38,6 +38,7 @@ export function PlatformDashboard({
           <span className="eyebrow">{t("platformEyebrow")}</span>
           <h1>{t("platform")}</h1>
           <p>{t("platformDescription")}</p>
+          <Link className="outline-button" href="/admin">{t('aiAdmin')}</Link>
         </div>
       </section>
       <div className="admin-tabs">

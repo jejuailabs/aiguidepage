@@ -23,6 +23,11 @@ import {
 } from "../schema.ts";
 import { PortalError } from "./errors.ts";
 import { readContentPage } from "./content-query.ts";
+import { getAiCategorySettings } from "./ai-categories.ts";
+import {
+  aiCategorySettingsSchema,
+  defaultAiCategories,
+} from "../ai-categories.ts";
 
 const db = () => getFirebaseAdminFirestore();
 const validId = (value: string) => {
@@ -499,6 +504,19 @@ export async function saveItem(
   const ref = collection.doc(itemId ? validId(itemId) : randomUUID());
   await db().runTransaction(async (tx) => {
     const existing = await tx.get(ref);
+    if (item.type === "ai" && item.data.categories) {
+      const settingsDoc = await tx.get(db().doc("settings/aiCategories"));
+      const categories = settingsDoc.exists
+        ? aiCategorySettingsSchema.parse(settingsDoc.data()).categories
+        : defaultAiCategories;
+      if (
+        item.data.categories.some(
+          (category) =>
+            !categories.some((value: { id: string }) => value.id === category),
+        )
+      )
+        throw new PortalError("invalid");
+    }
     const assets =
       item.type === "prompt"
         ? [...item.data.resultMedia, ...item.data.referenceImages]
@@ -616,6 +634,19 @@ export async function platformOverview(viewer: Viewer) {
       items: items.docs.map((d) => asItem(d, "common")),
     }),
   );
+}
+export async function aiOverview(viewer: Viewer) {
+  if (!viewer.platformAdmin) throw new PortalError("forbidden", 403);
+  const [items, settings] = await Promise.all([
+    db().collection("items").where("type", "==", "ai").get(),
+    getAiCategorySettings(),
+  ]);
+  return {
+    items: items.docs
+      .map((doc) => asItem(doc, "common"))
+      .sort((a, b) => a.order - b.order || a.id.localeCompare(b.id)),
+    settings,
+  };
 }
 export async function savePreferences(viewer: Viewer, input: unknown) {
   await userRef(viewer.uid).set(

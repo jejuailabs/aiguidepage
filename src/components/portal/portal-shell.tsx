@@ -165,7 +165,7 @@ export function PortalShell({
               <Link href={`/o/${org.id}/admin`}>{t("manageOrg")}</Link>
             )}
             {viewer.platformAdmin && (
-              <Link href="/platform">{t("platform")}</Link>
+              <><Link href="/admin">{t('aiAdmin')}</Link><Link href="/platform">{t("platform")}</Link></>
             )}
             <button className="outline-button" disabled={busy} onClick={logout}>
               {t("logout")}

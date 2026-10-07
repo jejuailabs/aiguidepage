@@ -427,3 +427,73 @@ test("platform administrator creates an organization and edits a prompt in the U
   expect(updated.data.resultText).toEqual(resultText);
   await getFirestore(admin()).doc("items/prompt-meeting").set(original);
 });
+
+test('AI administration edits category memberships, adds categories and publishes new services',async({page,browser})=>{
+  await login(page);
+  const store=getFirestore(admin()),original=(await store.doc('items/chatgpt').get()).data()!;
+  const settingsRef=store.doc('settings/aiCategories'),originalSettings=await settingsRef.get();
+  let createdId='';
+  try{
+    await page.goto('/en/admin');
+    await expect(page.getByRole('heading',{name:'Manage AI & categories',exact:true})).toBeVisible();
+    await page.getByRole('button',{name:'Edit ChatGPT',exact:true}).click();
+    await page.locator('.ai-category-picker').getByRole('checkbox',{name:'Images',exact:true}).uncheck();
+    await page.locator('.editor-form').getByRole('button',{name:'Save',exact:true}).click();
+    await expect(page.locator('.editor-form')).toHaveCount(0);
+    expect((await store.doc('items/chatgpt').get()).data()!.data.categories).toEqual(['chat']);
+
+    await page.getByRole('button',{name:'AI categories',exact:true}).click();
+    await page.getByRole('button',{name:'Add category',exact:true}).click();
+    await page.getByLabel('Category name · Korean', {exact:true}).last().fill('사진 편집');
+    await page.getByLabel('Category name · English (optional)',{exact:true}).last().fill('Photo editing');
+    await page.getByRole('button',{name:'Move Photo editing up',exact:true}).click();
+    await page.locator('.category-editor').getByRole('button',{name:'Save',exact:true}).click();
+    await expect(page.getByRole('status')).toHaveText('Saved');
+    const settings=(await settingsRef.get()).data()!,photo=settings.categories.find((category:{title:{en:string}})=>category.title.en==='Photo editing');
+    expect(photo).toBeTruthy();
+    expect(settings.categories.at(-2).id).toBe(photo.id);
+
+    await page.getByRole('button',{name:'AI services',exact:true}).click();
+    await page.getByRole('button',{name:'Add AI',exact:true}).click();
+    const form=page.locator('.editor-form');
+    await form.getByRole('group',{name:'Title',exact:true}).getByLabel('Korean',{exact:true}).fill('샘플 AI');
+    await form.getByRole('group',{name:'Title',exact:true}).getByLabel('English',{exact:true}).fill('Sample AI');
+    await form.getByRole('group',{name:'Short description',exact:true}).getByLabel('Korean',{exact:true}).fill('관리자가 새로 등록한 AI');
+    await form.getByLabel('Website URL',{exact:true}).fill('https://example.test');
+    await form.locator('.ai-category-picker').getByRole('checkbox',{name:'Photo editing',exact:true}).check();
+    await form.locator('.ai-category-picker').getByRole('checkbox',{name:'Chat',exact:true}).uncheck();
+    await form.getByRole('button',{name:'Save',exact:true}).click();
+    await expect(form).toHaveCount(0);
+    createdId=(await page.locator('.ai-admin-row').filter({hasText:'Sample AI'}).getAttribute('data-ai-id'))!;
+    expect((await store.doc(`items/${createdId}`).get()).data()!.data.categories).toEqual([photo.id]);
+    await page.screenshot({path:'output/qa/ai-admin-desktop.png',fullPage:true});
+    await page.goto('/en');
+    await page.getByRole('button',{name:'Images',exact:true}).click();
+    await expect(page.locator('[data-item="chatgpt"]')).toHaveClass(/is-dimmed/);
+    await page.getByRole('button',{name:'Photo editing',exact:true}).click();
+    await expect(page.locator(`[data-item="${createdId}"]`)).not.toHaveClass(/is-dimmed/);
+    await page.locator(`[data-item="${createdId}"] .card-trigger`).click();
+    await expect(page.getByRole('dialog',{name:'Sample AI',exact:true})).toContainText('Photo editing');
+    await page.getByRole('button',{name:'A closer look',exact:true}).click();
+    await expect(page.getByRole('link',{name:/Sample AI — Open website/})).toHaveAttribute('href','https://example.test');
+
+    await page.goto('/en/admin');
+    await page.getByRole('button',{name:'Hide Sample AI from homepage',exact:true}).click();
+    await expect(page.locator('.ai-admin-row').filter({hasText:'Sample AI'})).toContainText('Hidden from homepage');
+    const catalog=await page.request.get('/api/catalog');
+    expect((await catalog.json()).items.some((item:{id:string})=>item.id===createdId)).toBe(false);
+    await page.setViewportSize({width:390,height:844});
+    await page.getByRole('button',{name:'AI categories',exact:true}).click();
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+    expect((await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze()).violations).toEqual([]);
+    await page.screenshot({path:'output/qa/ai-admin-mobile.png',fullPage:true});
+    const member=await browser.newPage();await login(member,'qa-ai-member',false);
+    expect((await member.request.get(`${base}/api/portal/platform/ai`)).status()).toBe(403);
+    expect((await member.request.post(`${base}/api/portal/platform/ai/categories`,{headers,data:{revision:settings.revision,categories:settings.categories}})).status()).toBe(403);
+    await member.goto('/en/admin');await expect(member.getByRole('heading',{name:'Manage AI & categories',exact:true})).toHaveCount(0);await member.close();
+  }finally{
+    await store.doc('items/chatgpt').set(original);
+    if(createdId)await store.doc(`items/${createdId}`).delete();
+    if(originalSettings.exists)await settingsRef.set(originalSettings.data()!);else await settingsRef.delete();
+  }
+});

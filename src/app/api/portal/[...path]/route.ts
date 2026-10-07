@@ -5,6 +5,7 @@ import { assertMutation, failure, jsonBody, result } from "@/lib/server/http";
 import { PortalError } from "@/lib/server/errors";
 import * as portal from "@/lib/server/portal";
 import { hallKeys, type HallKey } from "@/lib/schema";
+import {saveAiCategorySettings} from '@/lib/server/ai-categories';
 export const runtime = "nodejs";
 type Context = { params: Promise<{ path: string[] }> };
 async function handle(request: NextRequest, context: Context) {
@@ -33,6 +34,8 @@ async function handle(request: NextRequest, context: Context) {
       );
     if (key === "platform" && method === "GET")
       return result(await portal.platformOverview(viewer));
+    if(key==='platform/ai'&&method==='GET')return result(await portal.aiOverview(viewer));
+    if(key==='platform/ai/categories'&&method==='POST')return result(await saveAiCategorySettings(viewer,body));
     if (key === "platform/orgs" && method === "POST")
       return result(await portal.createOrg(viewer, body));
     if (path[0] === "platform" && path[1] === "items" && method === "POST")

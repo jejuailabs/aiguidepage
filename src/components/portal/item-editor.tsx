@@ -1,10 +1,12 @@
 "use client";
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { contentSchema, type Content, type PortalItem } from "@/lib/schema";
 import { aiItems } from "@/data/ai";
 import { api, ApiError } from "@/lib/client-api";
 import { MediaUploader } from "./media-uploader";
+import { aiCategoryIds, type AiCategory } from "@/lib/ai-categories";
+import { useAiCategories } from "@/lib/use-ai-categories";
 
 const emptyText = { ko: "", en: "" };
 export function ItemEditor({
@@ -13,21 +15,32 @@ export function ItemEditor({
   common,
   onSaved,
   onCancel,
+  aiOnly = false,
+  aiCategories,
 }: {
   item?: PortalItem;
   endpoint: string;
   common: boolean;
   onSaved: () => void;
   onCancel: () => void;
+  aiOnly?: boolean;
+  aiCategories?: AiCategory[];
 }) {
-  const t = useTranslations("portal");
-  const [type, setType] = useState<Content["type"]>(item?.type || "prompt"),
+  const t = useTranslations("portal"),
+    locale = useLocale();
+  const categoryOptions = useAiCategories(aiCategories);
+  const [selectedCategories, setSelectedCategories] = useState(
+    item?.type === "ai" ? aiCategoryIds(item) : ["chat"],
+  );
+  const [type, setType] = useState<Content["type"]>(
+      item?.type || (aiOnly ? "ai" : "prompt"),
+    ),
     [title, setTitle] = useState(item?.title || emptyText),
     [summary, setSummary] = useState(item?.summary || emptyText),
     [category, setCategory] = useState(item?.category || "work"),
     [order, setOrder] = useState(item?.order || 0),
     [status, setStatus] = useState(item?.status || "published"),
-    [isPublic, setPublic] = useState(item?.public || false),
+    [isPublic, setPublic] = useState(item?.public ?? (aiOnly && common)),
     [busy, setBusy] = useState(false),
     [error, setError] = useState("");
   const [url, setUrl] = useState(item?.type === "ai" ? item.data.url : ""),
@@ -112,7 +125,7 @@ export function ItemEditor({
         type,
         title,
         summary,
-        category,
+        category: type === "ai" ? selectedCategories[0] : category,
         order,
         status,
         public: common && isPublic,
@@ -122,6 +135,7 @@ export function ItemEditor({
         data = {
           url,
           aiId: aiId || undefined,
+          categories: selectedCategories,
           description,
           features: {
             ko: features.ko.split("\n").filter(Boolean),
@@ -182,7 +196,17 @@ export function ItemEditor({
   return (
     <form className="editor-form" onSubmit={save}>
       <div className="section-heading">
-        <h2>{t(item ? "editItem" : "addItem")}</h2>
+        <h2>
+          {t(
+            aiOnly
+              ? item
+                ? "editAiTitle"
+                : "addAi"
+              : item
+                ? "editItem"
+                : "addItem",
+          )}
+        </h2>
         <button type="button" className="text-button" onClick={onCancel}>
           {t("cancel")}
         </button>
@@ -191,7 +215,7 @@ export function ItemEditor({
         {t("contentType")}
         <select
           value={type}
-          disabled={!!item}
+          disabled={!!item || aiOnly}
           onChange={(e) => setType(e.target.value as Content["type"])}
         >
           {(["ai", "prompt", "tool", "game"] as const).map((type) => (
@@ -203,32 +227,65 @@ export function ItemEditor({
       </label>
       {l10n("title", title, setTitle)}
       {l10n("summary", summary, setSummary, true)}
-      <div className="form-columns">
-        <label>
-          {t("categoryLabel")}
-          <select
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-          >
-            {[
-              "chat",
-              "search",
-              "documents",
-              "video",
-              "music",
-              "writing",
-              "image",
-              "work",
-              "life",
-              "utility",
-              "brain",
-            ].map((key) => (
-              <option key={key} value={key}>
-                {t(`category.${key}`)}
-              </option>
+      {type === "ai" && (
+        <fieldset className="ai-category-picker">
+          <legend>{t("aiCategories")}</legend>
+          <p className="field-hint">{t("aiCategoryHint")}</p>
+          <div>
+            {categoryOptions.map((option) => (
+              <label className="check-label" key={option.id}>
+                <input
+                  type="checkbox"
+                  checked={selectedCategories.includes(option.id)}
+                  disabled={
+                    selectedCategories.length === 1 &&
+                    selectedCategories[0] === option.id
+                  }
+                  onChange={(event) =>
+                    setSelectedCategories((values) =>
+                      event.target.checked
+                        ? [...values, option.id]
+                        : values.filter((id) => id !== option.id),
+                    )
+                  }
+                />
+                {locale === "en"
+                  ? option.title.en || option.title.ko
+                  : option.title.ko}
+                {!option.enabled && <small>{t("categoryHidden")}</small>}
+              </label>
             ))}
-          </select>
-        </label>
+          </div>
+        </fieldset>
+      )}
+      <div className="form-columns">
+        {type !== "ai" && (
+          <label>
+            {t("categoryLabel")}
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+            >
+              {[
+                "chat",
+                "search",
+                "documents",
+                "video",
+                "music",
+                "writing",
+                "image",
+                "work",
+                "life",
+                "utility",
+                "brain",
+              ].map((key) => (
+                <option key={key} value={key}>
+                  {t(`category.${key}`)}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
         <label>
           {t("order")}
           <input

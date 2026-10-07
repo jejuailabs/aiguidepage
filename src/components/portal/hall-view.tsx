@@ -27,6 +27,7 @@ import { toAiItem } from "@/lib/ai-item";
 import { MediaPreview, MediaGallery, ReferenceImages } from "./media-gallery";
 import {useMobilePlatform} from "@/lib/use-mobile-platform";
 import {mobileAppHref} from "@/lib/mobile-launch";
+import {useAiCategories} from '@/lib/use-ai-categories';
 import {
   localize,
   type Viewer,
@@ -68,6 +69,7 @@ export function HallView({
 }) {
   const t = useTranslations("portal"),
     locale = useLocale();
+  const aiCategoryOptions=useAiCategories();
   const [items, setItems] = useState(initialItems),
     [cursor, setCursor] = useState(initialCursor),
     [busy, setBusy] = useState(false),
@@ -178,7 +180,7 @@ export function HallView({
     }
   }
   const asAi = (item: PortalItem): AiItem => {
-    return toAiItem(item, locale, keyOf(item));
+    return toAiItem(item, locale, keyOf(item),aiCategoryOptions);
   };
   const itemCategories = (item: PortalItem): string[] =>
     item.type === "ai"
@@ -190,7 +192,7 @@ export function HallView({
       (aiFilter === "all" ||
         (item.type === "prompt" && item.data.aiSlug === aiFilter)),
   );
-  const categories = Array.from(new Set(items.flatMap(itemCategories)));
+  const categories = hall.key==='ai'?aiCategoryOptions.filter(option=>option.enabled).map(option=>option.id):Array.from(new Set(items.flatMap(itemCategories)));
   return (
     <PortalShell
       viewer={viewer}
@@ -225,7 +227,7 @@ export function HallView({
                     setAiFilter("all");
                   }}
                 >
-                  {t.has(`category.${category}`)
+                  {hall.key==='ai'&&category!=='all'?localize(aiCategoryOptions.find(option=>option.id===category)!.title,locale):t.has(`category.${category}`)
                     ? t(`category.${category}`)
                     : category}
                 </button>
