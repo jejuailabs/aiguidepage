@@ -2,9 +2,10 @@
   "name": "aiguidepage",
   "version": "0.1.0",
   "private": true,
-  "engines":{"node":"22.x"},
+  "engines": {
+    "node": "22.x"
+  },
   "scripts": {
-    "prebuild":"node --env-file-if-exists=.env.local scripts/generate-shortcut-downloads.mjs",
     "dev": "next dev --hostname 127.0.0.1",
     "build": "next build",
     "start": "next start --hostname 127.0.0.1",
@@ -36,7 +37,9 @@
     "zod": "^4.6.5"
   },
   "overrides": {
-    "jwks-rsa":{"jose":"5.10.0"},
+    "jwks-rsa": {
+      "jose": "5.10.0"
+    },
     "@firebase/firestore": {
       "@grpc/grpc-js": "1.14.5"
     },

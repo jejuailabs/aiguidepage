@@ -94,22 +94,30 @@ test("desktop QR encodes the deployed locale URL and supports saving and copying
   await open.click();
   const qr = page.getByRole("img", { name: "AI 전시관으로 연결되는 QR코드" });
   const url = "https://aiguidepage.vercel.app/ko";
-  const expected = QRCode.create(url, {errorCorrectionLevel: "M"}).modules;
+  const expected = QRCode.create(url, { errorCorrectionLevel: "M" }).modules;
   await expect(qr).toHaveAttribute("src", /^data:image\/png;base64,/);
   // Compare encoded QR cells; browser and Node PNG compression differs.
   const cells = await qr.evaluate(async (element, size) => {
-    const image=element as HTMLImageElement; await image.decode();
-    const canvas=document.createElement('canvas');canvas.width=canvas.height=image.naturalWidth;
-    const context=canvas.getContext('2d')!;context.drawImage(image,0,0);
-    const pixels=context.getImageData(0,0,canvas.width,canvas.height).data;
-    const scale=canvas.width/(size+6),values=[];
-    for(let row=0;row<size;row++)for(let col=0;col<size;col++){
-      const x=Math.floor((col+3.5)*scale),y=Math.floor((row+3.5)*scale);
-      values.push(pixels[(y*canvas.width+x)*4]);
-    }
+    const image = element as HTMLImageElement;
+    await image.decode();
+    const canvas = document.createElement("canvas");
+    canvas.width = canvas.height = image.naturalWidth;
+    const context = canvas.getContext("2d")!;
+    context.drawImage(image, 0, 0);
+    const pixels = context.getImageData(0, 0, canvas.width, canvas.height).data;
+    const scale = canvas.width / (size + 6),
+      values = [];
+    for (let row = 0; row < size; row++)
+      for (let col = 0; col < size; col++) {
+        const x = Math.floor((col + 3.5) * scale),
+          y = Math.floor((row + 3.5) * scale);
+        values.push(pixels[(y * canvas.width + x) * 4]);
+      }
     return values;
-  },expected.size);
-  expect(cells).toEqual(Array.from(expected.data,value=>value?0:255));
+  }, expected.size);
+  expect(cells).toEqual(
+    Array.from(expected.data, (value) => (value ? 0 : 255)),
+  );
   await expect(page.locator(".shortcut-url")).toHaveText(url);
   await page.getByRole("button", { name: "주소 복사", exact: true }).click();
   expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(url);
@@ -156,16 +164,24 @@ test("desktop shortcut uses the default browser and never installs a browser app
     });
     window.dispatchEvent(event);
   });
-  const download=page.waitForEvent('download');await button.click();
-  expect((await download).suggestedFilename()).toBe('AI 전시관.zip');
-  const bundle=await page.request.get('/downloads/AI-gallery-ko.zip');
-  expect((await bundle.body()).includes(Buffer.from('AI 전시관.url'))).toBe(true);
-  expect((await bundle.body()).includes(Buffer.from('[InternetShortcut]\r\nURL=https://aiguidepage.vercel.app/ko\r\n'))).toBe(true);
-  expect((await bundle.body()).includes(Buffer.from('AI-gallery.ico'))).toBe(true);
-  await expect(page.locator('body')).not.toHaveAttribute('data-prompt-calls','1');
-  await expect(page.getByRole('dialog')).toContainText('기본 브라우저');
-  const response=await page.request.get('/api/shortcut?locale=ko');
-  expect(await response.text()).toBe('[InternetShortcut]\r\nURL=https://aiguidepage.vercel.app/ko\r\n');
+  await expect(button).toHaveAttribute(
+    "href",
+    "https://aiguidepage.vercel.app/ko",
+  );
+  await expect(button).toHaveAttribute("draggable", "true");
+  await button.click();
+  await expect(
+    page.getByRole("link", { name: "바탕화면에 끌어 놓기", exact: true }),
+  ).toHaveAttribute("href", "https://aiguidepage.vercel.app/ko");
+  await expect(page.locator("body")).not.toHaveAttribute(
+    "data-prompt-calls",
+    "1",
+  );
+  await expect(page.getByRole("dialog")).toContainText("기본 브라우저");
+  const response = await page.request.get("/api/shortcut?locale=ko");
+  expect(await response.text()).toBe(
+    "[InternetShortcut]\r\nURL=https://aiguidepage.vercel.app/ko\r\n",
+  );
   expect(await response.text()).not.toMatch(/chrome|profile|app-id|\.exe/i);
   await page.keyboard.press("Escape");
   await page.evaluate(() => window.dispatchEvent(new Event("appinstalled")));
