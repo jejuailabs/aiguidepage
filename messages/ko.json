@@ -339,6 +339,7 @@
     "nextQuestion": "다음 문제",
     "editItem": "콘텐츠 수정",
     "addItem": "콘텐츠 추가",
+    "addContentType": "{type} 추가",
     "cancel": "취소",
     "contentType": "콘텐츠 종류",
     "title": "제목",

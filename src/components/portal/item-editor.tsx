@@ -17,6 +17,7 @@ export function ItemEditor({
   onCancel,
   aiOnly = false,
   aiCategories,
+  fixedType,
 }: {
   item?: PortalItem;
   endpoint: string;
@@ -25,6 +26,7 @@ export function ItemEditor({
   onCancel: () => void;
   aiOnly?: boolean;
   aiCategories?: AiCategory[];
+  fixedType?: Content["type"];
 }) {
   const t = useTranslations("portal"),
     locale = useLocale();
@@ -33,11 +35,18 @@ export function ItemEditor({
     item?.type === "ai" ? aiCategoryIds(item) : ["chat"],
   );
   const [type, setType] = useState<Content["type"]>(
-      item?.type || (aiOnly ? "ai" : "prompt"),
+      item?.type || fixedType || (aiOnly ? "ai" : "prompt"),
     ),
     [title, setTitle] = useState(item?.title || emptyText),
     [summary, setSummary] = useState(item?.summary || emptyText),
-    [category, setCategory] = useState(item?.category || "work"),
+    [category, setCategory] = useState(
+      item?.category ||
+        (fixedType === "tool"
+          ? "utility"
+          : fixedType === "game"
+            ? "brain"
+            : "work"),
+    ),
     [order, setOrder] = useState(item?.order || 0),
     [status, setStatus] = useState(item?.status || "published"),
     [isPublic, setPublic] = useState(item?.public ?? (aiOnly && common)),
@@ -211,20 +220,22 @@ export function ItemEditor({
           {t("cancel")}
         </button>
       </div>
-      <label>
-        {t("contentType")}
-        <select
-          value={type}
-          disabled={!!item || aiOnly}
-          onChange={(e) => setType(e.target.value as Content["type"])}
-        >
-          {(["ai", "prompt", "tool", "game"] as const).map((type) => (
-            <option key={type} value={type}>
-              {t(`type.${type}`)}
-            </option>
-          ))}
-        </select>
-      </label>
+      {!fixedType && (
+        <label>
+          {t("contentType")}
+          <select
+            value={type}
+            disabled={!!item || aiOnly}
+            onChange={(e) => setType(e.target.value as Content["type"])}
+          >
+            {(["ai", "prompt", "tool", "game"] as const).map((type) => (
+              <option key={type} value={type}>
+                {t(`type.${type}`)}
+              </option>
+            ))}
+          </select>
+        </label>
+      )}
       {l10n("title", title, setTitle)}
       {l10n("summary", summary, setSummary, true)}
       {type === "ai" && (

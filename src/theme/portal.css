@@ -1355,3 +1355,11 @@ button:disabled {
     aspect-ratio: 4/3;
   }
 }
+
+.common-category-filter {
+  display: grid;
+  gap: 8px;
+  width: min(100%, 320px);
+  margin-bottom: 20px;
+  font-weight: 600;
+}

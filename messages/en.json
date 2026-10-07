@@ -339,6 +339,7 @@
     "nextQuestion": "Next question",
     "editItem": "Edit content",
     "addItem": "Add content",
+    "addContentType": "Add {type}",
     "cancel": "Cancel",
     "contentType": "Content type",
     "title": "Title",

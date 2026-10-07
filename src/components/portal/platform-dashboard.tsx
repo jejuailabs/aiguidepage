@@ -9,6 +9,8 @@ import { Link } from "@/i18n/navigation";
 import { api } from "@/lib/client-api";
 import { localize, type Org, type Viewer, type PortalItem } from "@/lib/schema";
 type Data = { orgs: (Org & { memberCount: number })[]; items: PortalItem[] };
+const contentTypes = ["prompt", "tool", "game"] as const;
+type CommonContentType = (typeof contentTypes)[number];
 export function PlatformDashboard({
   viewer,
   initial,
@@ -20,10 +22,19 @@ export function PlatformDashboard({
     locale = useLocale(),
     [data, setData] = useState(initial),
     [tab, setTab] = useState("orgs"),
+    [contentType, setContentType] = useState<CommonContentType>("prompt"),
+    [category, setCategory] = useState("all"),
     [create, setCreate] = useState(false),
     [editing, setEditing] = useState<PortalItem | null | undefined>(undefined),
     [code, setCode] = useState(""),
     [error, setError] = useState(false);
+  const typeItems = data.items.filter((item) => item.type === contentType);
+  const categories = [...new Set(typeItems.map((item) => item.category))];
+  const visibleItems = typeItems.filter(
+    (item) => category === "all" || item.category === category,
+  );
+  const categoryName = (id: string) =>
+    t.has(`category.${id}`) ? t(`category.${id}`) : id;
   async function refresh() {
     try {
       setData(await api<Data>("/api/portal/platform"));
@@ -38,7 +49,9 @@ export function PlatformDashboard({
           <span className="eyebrow">{t("platformEyebrow")}</span>
           <h1>{t("platform")}</h1>
           <p>{t("platformDescription")}</p>
-          <Link className="outline-button" href="/admin">{t('aiAdmin')}</Link>
+          <Link className="outline-button" href="/admin">
+            {t("aiAdmin")}
+          </Link>
         </div>
       </section>
       <div className="admin-tabs">
@@ -125,7 +138,9 @@ export function PlatformDashboard({
           )
         ) : editing !== undefined ? (
           <ItemEditor
+            key={editing?.id || contentType}
             common
+            fixedType={contentType}
             item={editing || undefined}
             endpoint={`/api/portal/platform/items${editing ? `/${editing.id}` : ""}`}
             onCancel={() => setEditing(undefined)}
@@ -140,16 +155,46 @@ export function PlatformDashboard({
               <h2>{t("commonContent")}</h2>
               <button className="pill-button" onClick={() => setEditing(null)}>
                 <Plus size={17} />
-                {t("addItem")}
+                {t("addContentType", { type: t(`type.${contentType}`) })}
               </button>
             </div>
+            <div className="admin-tabs" aria-label={t("contentType")}>
+              {contentTypes.map((type) => (
+                <button
+                  key={type}
+                  aria-pressed={contentType === type}
+                  className={contentType === type ? "selected" : ""}
+                  onClick={() => {
+                    setContentType(type);
+                    setCategory("all");
+                  }}
+                >
+                  {t(`type.${type}`)} ·{" "}
+                  {data.items.filter((item) => item.type === type).length}
+                </button>
+              ))}
+            </div>
+            <label className="common-category-filter">
+              {t("categoryLabel")}
+              <select
+                value={category}
+                onChange={(event) => setCategory(event.target.value)}
+              >
+                <option value="all">{t("category.all")}</option>
+                {categories.map((id) => (
+                  <option key={id} value={id}>
+                    {categoryName(id)}
+                  </option>
+                ))}
+              </select>
+            </label>
             <div className="admin-list">
-              {data.items.map((item) => (
+              {visibleItems.map((item) => (
                 <div className="admin-row" key={item.id}>
                   <div>
                     <strong>{localize(item.title, locale)}</strong>
                     <small>
-                      {t(`type.${item.type}`)} · {t(item.status)}
+                      {categoryName(item.category)} · {t(item.status)}
                     </small>
                   </div>
                   <button
@@ -161,6 +206,7 @@ export function PlatformDashboard({
                 </div>
               ))}
             </div>
+            {!visibleItems.length && <p className="muted">{t("empty")}</p>}
           </>
         )}
       </section>
