@@ -24,7 +24,7 @@ jobs:
       - run: npm run typecheck
       - run: npm run i18n:check
       - run: npm run test:admin
-      - run: node --experimental-strip-types --test tests/csrf.node.mjs tests/content-query.node.mjs
+      - run: node --experimental-strip-types --test tests/csrf.node.mjs tests/content-query.node.mjs tests/media.node.mjs
       - run: npm run build
       - run: npx playwright install --with-deps chromium
       - run: npx firebase emulators:exec --only auth,firestore --project demo-aiguide "node scripts/test-emulated.mjs"

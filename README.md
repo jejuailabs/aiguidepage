@@ -10,8 +10,10 @@ AI 서비스를 선반형 전시관에서 둘러보고 실행하는 포털입니
 - Claude 데스크톱 앱 실행 링크와 웹·설치 안내
 
 - Google·이메일 링크 로그인, 14일 HttpOnly 세션, 초대코드 가입, 조직 선택
-- 공용·조직별 콘텐츠, 12개씩 불러오는 프롬프트, 변수 입력·복사, 즐겨찾기
-- 프롬프트 빌더·글자 수·QR PNG·안내문 템플릿, 카드 짝 맞추기·AI 퀴즈
+- 공용·조직별 콘텐츠, 결과물 중심 프롬프트 갤러리, 변수 입력·복사, 즐겨찾기
+- 이미지·영상 결과물 등록, 참고 이미지 최대 3개 업로드·미리보기·저장
+- 로그인 없이 쓰는 AI 도구: 프롬프트 만들기·글자 수 세기·QR코드 만들기·안내문 만들기
+- 카드 짝 맞추기·AI 퀴즈
 - 조직 관리자 4개 탭: 멤버·초대, 전시관, 콘텐츠, 꾸미기
 - 플랫폼 관리자: 조직 생성·첫 관리자 초대·공용 콘텐츠 관리
 
@@ -42,7 +44,7 @@ npm run typecheck
 npm run i18n:check
 npm run build
 npm run test:admin
-node --experimental-strip-types --test tests/csrf.node.mjs tests/content-query.node.mjs
+node --experimental-strip-types --test tests/csrf.node.mjs tests/content-query.node.mjs tests/media.node.mjs
 ```
 
 브라우저 테스트는 개발 서버를 실행한 상태에서 별도 터미널에서 진행합니다.
@@ -90,3 +92,13 @@ Vercel의 `FIREBASE_ADMIN_PRIVATE_KEY` 값에는 PEM 원문을 넣습니다. `.e
 - [docs/](docs/): 제품·디자인·데이터·배포 정의서
 - [승인된 메인 시안](output/imagegen/homepage-shelves-v1.png)
 - [브랜드 이미지 출처](public/brands/SOURCES.txt)
+
+## 프롬프트 샘플 등록
+
+조직 관리자 또는 플랫폼 관리자의 콘텐츠 편집 화면에서 프롬프트를 선택하고 결과물과 참고 이미지를 올립니다. 결과물은 이미지·영상 최대 6개이며 첫 파일이 갤러리 표지입니다. 참고 이미지는 JPEG·PNG·WebP 최대 3개입니다. 이용자는 저장 버튼으로 샘플을 받아 AI에 첨부할 수 있습니다.
+
+이미지는 파일당 8 MiB, MP4·WebM 영상은 50 MiB까지 지원합니다. 파일은 짧게 유효한 업로드 정책으로 Storage에 직접 보내므로 Vercel 서버 요청에 대용량 파일을 실어 보내지 않습니다. 완료 시 크기·형식을 검증하고, 저장된 콘텐츠에 연결한 파일은 편집 취소 정리에서 보호합니다.
+
+현재 Storage 버킷은 `aiguidepage.firebasestorage.app`이며 배포 주소와 로컬 3000·3002 포트의 업로드 CORS를 설정했습니다. 서버는 기존 `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET`을 사용하며 필요하면 `FIREBASE_STORAGE_BUCKET`으로 별도 지정할 수 있습니다. Firebase 다운로드 주소는 토큰을 가진 사람에게 파일을 제공하므로 공개 예시로 제공할 수 있는 파일을 등록합니다.
+
+기존 기본 이름만 갤러리·쉬운 도구 이름으로 바꾸려면 `node --env-file-if-exists=.env.local --conditions=react-server --experimental-strip-types scripts/update-gallery-data.mjs`를 실행합니다. 관리자가 직접 바꾼 이름은 유지합니다. 결과물을 등록하지 않은 기존 프롬프트는 준비 안내 또는 글 결과를 표시합니다.
