@@ -15,3 +15,6 @@ next.config.compiled.js
 service-account*.json
 *.pem
 *.key
+.next-test/
+*-debug.log
+.firebase/

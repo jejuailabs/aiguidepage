@@ -1,0 +1,14 @@
+export const emulatorEnv = {
+  ...process.env,
+  GCLOUD_PROJECT: "demo-aiguide",
+  FIRESTORE_EMULATOR_HOST: "127.0.0.1:8080",
+  FIREBASE_AUTH_EMULATOR_HOST: "127.0.0.1:9099",
+  NEXT_BUILD_DIR: ".next-test",
+  NEXT_PUBLIC_USE_FIREBASE_EMULATORS: "true",
+  NEXT_PUBLIC_FIREBASE_PROJECT_ID: "demo-aiguide",
+  NEXT_PUBLIC_FIREBASE_API_KEY: "demo-api-key",
+  NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: "localhost",
+  NEXT_PUBLIC_FIREBASE_APP_ID: "1:123:web:demo",
+  NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID: "",
+  PLATFORM_ADMIN_EMAIL: "owner@example.test",
+};

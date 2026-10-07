@@ -1,0 +1,26 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null && request.auth.token.email_verified == true; }
+    function operator() { return signedIn() && request.auth.token.get('platformAdmin', false) == true; }
+    function active(org) { return get(/databases/$(database)/documents/orgs/$(org)).data.status == 'active'; }
+    function member(org) { return signedIn() && active(org) && exists(/databases/$(database)/documents/orgs/$(org)/members/$(request.auth.uid)); }
+    function admin(org) { return member(org) && get(/databases/$(database)/documents/orgs/$(org)/members/$(request.auth.uid)).data.role == 'admin'; }
+    match /hallTemplates/{id} { allow read: if true; }
+    match /items/{id} { allow read: if operator() || (resource.data.status == 'published' && resource.data.public == true); }
+    match /orgs/{org} {
+      allow read: if operator() || member(org);
+      match /members/{uid} { allow read: if operator() || admin(org) || (member(org) && request.auth.uid == uid); }
+      match /halls/{id} { allow read: if operator() || member(org); }
+      match /items/{id} { allow read: if operator() || admin(org) || (member(org) && resource.data.status == 'published'); }
+      match /overrides/{id} { allow read: if operator() || member(org); }
+    }
+    match /users/{uid} {
+      allow read: if signedIn() && request.auth.uid == uid;
+      match /favorites/{id} { allow read: if signedIn() && request.auth.uid == uid; }
+    }
+    match /invites/{code} { allow read: if operator() || admin(resource.data.orgId); }
+    // All writes pass through the authenticated and validated server API.
+    match /{document=**} { allow write: if false; }
+  }
+}
