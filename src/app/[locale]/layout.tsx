@@ -4,6 +4,7 @@ import {setRequestLocale, getTranslations} from 'next-intl/server';
 import {notFound} from 'next/navigation';
 import {routing} from '@/i18n/routing';
 import {themeScript} from '@/theme/preferences';
+import {FirebaseBootstrap} from '@/components/firebase-bootstrap';
 import 'pretendard/dist/web/static/pretendard-dynamic-subset.css';
 import '../globals.css';
 
@@ -19,5 +20,5 @@ export default async function LocaleLayout({children, params}: Readonly<{childre
   if (!hasLocale(routing.locales, locale)) notFound();
   setRequestLocale(locale);
   return <html lang={locale} suppressHydrationWarning><head><script dangerouslySetInnerHTML={{__html: themeScript}} /></head>
-    <body><NextIntlClientProvider>{children}</NextIntlClientProvider></body></html>;
+    <body><FirebaseBootstrap /><NextIntlClientProvider>{children}</NextIntlClientProvider></body></html>;
 }
