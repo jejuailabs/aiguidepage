@@ -7,7 +7,7 @@ test('desktop shelf, rollover, and keyboard/history navigation', async ({page}) 
   const errors: string[] = [];
   page.on('pageerror', error => errors.push(error.message));
   await page.goto('/ko');
-  await expect(page.locator('.ai-card')).toHaveCount(9);
+  await expect(page.locator('.ai-card')).toHaveCount(10);
   await expect(page.locator('.shelf-row')).toHaveCount(2);
   await page.evaluate(() => document.fonts.ready);
   await expect.poll(() => page.locator('.service-logo').evaluateAll(images => images.every(image => (image as HTMLImageElement).naturalWidth > 0))).toBeTruthy();
@@ -51,14 +51,14 @@ test('search and categories preserve the collection', async ({page}) => {
   await page.getByRole('textbox').fill('no-such-service');
   await expect(page.getByText('아직 그 AI는 선반에 없어요.')).toBeVisible();
   await page.getByRole('button', {name: '모두 둘러보기'}).click();
-  await expect(page.locator('.ai-card')).toHaveCount(9);
+  await expect(page.locator('.ai-card')).toHaveCount(10);
 });
 
 test('responsive shelves and touch detail', async ({page}) => {
   for (const width of [360, 390, 768, 1024, 1440]) {
     await page.setViewportSize({width, height: 844});
     await page.goto('/ko');
-    await expect(page.locator('.shelf-row')).toHaveCount(width < 640 ? 5 : width < 1024 ? 3 : 2);
+    await expect(page.locator('.shelf-row')).toHaveCount(width < 640 ? 5 : width < 1024 ? 4 : 2);
     await page.evaluate(() => document.fonts.ready);
     await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBeTruthy();
   }

@@ -22,5 +22,6 @@ export const aiItems: AiItem[] = [
   {id: 'genspark', name: 'Genspark', category: 'documents', url: 'https://www.genspark.ai', logo: 'genspark.svg'},
   {id: 'notebooklm', name: 'NotebookLM', category: 'documents', url: 'https://notebooklm.google.com', logo: 'notebooklm.svg'},
   {id: 'flow', name: 'Google Flow', category: 'video', url: 'https://labs.google/fx/tools/flow', logo: 'google-color.svg'},
-  {id: 'suno', name: 'Suno', category: 'music', url: 'https://suno.com', logo: 'suno.svg'}
+  {id: 'suno', name: 'Suno', category: 'music', url: 'https://suno.com', logo: 'suno.svg'},
+  {id: 'flow-music', name: 'Google Flow Music', category: 'music', url: 'https://flowmusic.google/', logo: 'google-color.svg'}
 ];

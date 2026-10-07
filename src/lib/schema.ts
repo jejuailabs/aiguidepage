@@ -68,6 +68,7 @@ export const contentSchema = z
           "notebooklm",
           "flow",
           "suno",
+          "flow-music",
         ]),
         text: l10nSchema,
         variables: z

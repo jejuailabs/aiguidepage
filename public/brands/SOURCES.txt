@@ -13,5 +13,5 @@ https://www.genspark.ai/brand/genspark
 https://cdn1.genspark.ai/user-upload-image/admin/brand/genspark/logos/icon-square.svg
 Genspark brand guidelines apply.
 
-Cover backgrounds are original CSS artwork. Google Flow is represented by
-Google's brand icon; the icon does not imply a separate Flow product mark.
+Cover backgrounds are original CSS artwork. Google Flow and Google Flow Music
+are represented by Google's brand icon; it does not imply a separate product mark.

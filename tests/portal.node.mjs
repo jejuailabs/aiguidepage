@@ -64,7 +64,7 @@ test("organization authorization, invite transactions, content and rules", async
     "http://127.0.0.1:8080/emulator/v1/projects/demo-aiguide/databases/(default)/documents",
     { method: "DELETE" },
   );
-  assert.equal((await seed()).created, 37);
+  assert.equal((await seed()).created, 38);
   assert.equal((await seed()).created, 0);
   await portal.ensureProfile(owner);
   await portal.createOrg(owner, orgInput("test-alpha"));

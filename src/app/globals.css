@@ -92,6 +92,9 @@ h1, h2, h3, p {margin: 0;}
 .cover-flow {--cover-bg: var(--flow-bg); --cover-soft: var(--flow-soft); --cover-depth: var(--flow-depth);}
 .cover-flow .cover-name {font-size: 11cqw;}
 .cover-flow .art-layer.one {left: -40%; bottom: -52%; transform: rotate(45deg);}
+.cover-flow-music {--cover-bg: var(--flow-bg); --cover-soft: var(--flow-soft); --cover-depth: var(--flow-depth);}
+.cover-flow-music .cover-name {font-size: 9.8cqw;}
+.cover-flow-music .art-layer.one {left: -35%; bottom: -43%; transform: rotate(-25deg);}
 .cover-suno {--cover-bg: var(--suno-bg); --cover-soft: var(--suno-soft); --cover-depth: var(--suno-depth);}
 .cover-suno .service-logo {width: 48%; left: 26%;}
 .card-actions {position: absolute; bottom: 6%; left: 6%; right: 6%; display: flex; justify-content: center; gap: 6px; opacity: 0; visibility: hidden; transform: translateY(8px); transition: opacity .2s, transform .2s, visibility .2s;}

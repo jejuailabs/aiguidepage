@@ -27,7 +27,7 @@
     "subtitle": "Find an AI that makes your day a little easier.",
     "hint": "Pick a card to get to know it",
     "collection": "THE AI COLLECTION",
-    "count": "9 AIs. Endless possibilities.",
+    "count": "{count} AIs. Endless possibilities.",
     "filterLabel": "Explore by interest",
     "searchPlaceholder": "Search a name or something you want to do",
     "clearSearch": "Clear search",
@@ -163,6 +163,14 @@
       "feature2": "Explore moods and movement",
       "feature3": "Create short video concepts",
       "prompt": "A peaceful Jeju beach at sunset, silver grass swaying slowly in the breeze, gentle waves. A warm, cinematic moment."
+    },
+    "flow-music": {
+      "summary": "Turn a melody in your mind into your own song.",
+      "description": "Google's music creation tool helps you turn a genre and mood into a song, then refine its lyrics and arrangement.",
+      "feature1": "Create music from text, images and audio",
+      "feature2": "Refine lyrics, instruments and song structure",
+      "feature3": "Share and download finished tracks",
+      "prompt": "Create a relaxing instrumental for a seaside cafe in Jeju. Warm piano, gentle guitar, a laid-back tempo, no vocals, one minute long."
     },
     "suno": {
       "summary": "Let a little imagination become your own music.",
