@@ -89,11 +89,13 @@
     "androidStep1": "Open this page in Chrome and tap the ⋮ menu at the top right.",
     "androidStep2": "Choose Install app or Add to Home screen.",
     "androidStep3": "Confirm the installation to open it from your home screen.",
-    "desktopStep1": "Open this page in Chrome or Edge and open the top-right menu.",
-    "desktopStep2": "In Chrome, choose Cast, save and share → Install page as app. In Edge, choose Apps → Install this site as an app.",
-    "desktopStep3": "Follow the installation steps to add a desktop shortcut. If Chrome hasn’t added one, visit chrome://apps, right-click AI Gallery, and choose Create shortcut → Desktop.",
+    "desktopStep1": "Extract the downloaded ZIP and move ‘AI Gallery.url’ to your desktop.",
+    "desktopStep2": "Open the shortcut to visit the page in this PC’s default browser.",
+    "desktopStep3": "To use the shelf icon, save the icon below and right-click the shortcut → Properties → Change Icon. Select the saved icon and keep its file in place.",
     "iosHint": "Tap the new icon to open AI Gallery like an app.",
-    "desktopHint": "Menu names may vary slightly between browsers.",
+    "desktopHint": "This shortcut does not specify a browser or profile.",
+    "saveShortcut": "Save shortcut again",
+    "saveIcon": "Save shelf icon",
     "androidHint": "If you don’t see an install menu, open the link again in Chrome."
   },
   "launch": {
@@ -217,6 +219,7 @@
   },
   "portal": {
     "aiAdmin": "Manage AI & categories",
+    "manageContent": "Manage prompts, tools & games",
     "aiAdminDescription": "Add AI services and choose the categories where they appear.",
     "viewMain": "View homepage",
     "aiList": "AI services",

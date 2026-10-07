@@ -15,6 +15,7 @@ import { Modal } from "@/components/shell/modal";
 import { usePreferences } from "@/theme/use-preferences";
 import { localize, type PortalItem } from "@/lib/schema";
 import { toolRegistry } from "@/tools/registry";
+import {Link} from '@/i18n/navigation';
 type ToolItem = PortalItem & { type: "tool" };
 const icons = {
   "prompt-builder": FilePenLine,
@@ -59,7 +60,7 @@ export function PublicTools({
         }
         onHall={(hall) =>
           router.push(
-            `/${locale}${hall === "ai" ? "" : hall === "tools" ? "/tools" : "/orgs"}`,
+            `/${locale}${hall === "ai" ? "" : `/${hall}`}`,
           )
         }
       />
@@ -94,6 +95,7 @@ export function PublicTools({
           })}
         </div>
         <p className="tools-local-note">{t("localOnly")}</p>
+        <footer className="public-hall-footer"><Link href="/platform">{t('manageContent')}</Link></footer>
       </main>
       <Modal
         open={!!active}

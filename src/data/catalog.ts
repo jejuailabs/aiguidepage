@@ -262,7 +262,7 @@ export function catalog(messages: {
           category,
           order: index,
           status: "published",
-          public: false,
+          public: true,
           data: {
             aiSlug,
             resultMedia: [],
@@ -337,7 +337,7 @@ export function catalog(messages: {
         category: "utility",
         order: index,
         status: "published",
-        public: false,
+        public: true,
         data: {
           toolKey: key,
           ...(key === "template-fill"
@@ -364,7 +364,7 @@ export function catalog(messages: {
       category: "brain",
       order: 0,
       status: "published",
-      public: false,
+      public: true,
       data: { gameKey: "memory-match" },
     },
   });
@@ -441,7 +441,7 @@ export function catalog(messages: {
       category: "brain",
       order: 1,
       status: "published",
-      public: false,
+      public: true,
       data: {
         gameKey: "ai-quiz",
         questions: questions.map(([ko, en, koOptions, enOptions, answer]) => ({

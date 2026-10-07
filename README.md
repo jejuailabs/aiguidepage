@@ -106,7 +106,7 @@ Vercel의 `FIREBASE_ADMIN_PRIVATE_KEY` 값에는 PEM 원문을 넣습니다. `.e
 
 ## 바로가기·QR·모바일 앱
 
-메인의 ‘바탕화면 바로가기’는 지원 브라우저에서 웹 앱 설치 창을 띄웁니다. 선반 아이콘은 바탕화면·홈 화면·독에서 사용하고 독립 창으로 엽니다. 설치 창을 제공하지 않는 브라우저에는 Chrome·Edge·iPhone·Android별 추가 절차를 안내합니다. 바탕화면 생성과 최종 설치 확인은 브라우저에서 진행합니다.
+PC의 ‘바탕화면 바로가기’는 브라우저·프로필·앱 ID를 지정하지 않는 `.url`과 선반 아이콘이 든 ZIP을 내려받습니다. 브라우저가 직접 받는 `.url`의 확장자를 `.download`로 바꾸는 경우가 있어 ZIP으로 제공합니다. 압축을 풀고 `.url`을 바탕화면으로 옮기면 기본 브라우저로 엽니다. 전용 아이콘은 `.ico`를 보관하고 바로가기 속성에서 선택합니다. 모바일의 홈 화면 추가는 해당 기기의 추가 절차를 안내합니다.
 
 ‘휴대폰으로 열기 · QR’에서 QR 이미지 저장·주소 복사를 제공합니다. QR은 현재 언어의 `https://aiguidepage.vercel.app/ko` 또는 `/en` 주소를 사용합니다. 배포 도메인을 바꾸면 빌드 전에 `NEXT_PUBLIC_SITE_URL`에 새 HTTPS 주소를 설정합니다.
 
@@ -115,6 +115,10 @@ Vercel의 `FIREBASE_ADMIN_PRIVATE_KEY` 값에는 PEM 원문을 넣습니다. `.e
 아이콘 원본은 `public/icons/gallery.svg`입니다. 수정 후 `node scripts/generate-app-icons.mjs`로 PNG·ICO를 다시 생성합니다.
 
 ## 프롬프트 샘플 등록
+
+메인의 프롬프트·도구·게임은 조직 가입 없이 공용 공개 콘텐츠를 바로 엽니다. [프롬프트 갤러리](https://aiguidepage.vercel.app/ko/prompts), [AI 도구](https://aiguidepage.vercel.app/ko/tools), [게임](https://aiguidepage.vercel.app/ko/games)에서 사용합니다. `/ko/platform`의 ‘공용 콘텐츠’에서 관리하며, 공개 표시와 게시 상태를 모두 선택한 항목만 나타납니다. 조직 전용 항목은 계속 조직 구성원에게만 제공합니다.
+
+기존 기본 템플릿의 공개 표시를 이전하려면 `node --env-file-if-exists=.env.local --conditions=react-server --experimental-strip-types scripts/publish-starter-halls.mjs --apply`를 실행합니다. 관리자가 편집한 비공개 콘텐츠는 보존합니다.
 
 조직 관리자 또는 플랫폼 관리자의 콘텐츠 편집 화면에서 프롬프트를 선택하고 결과물과 참고 이미지를 올립니다. 결과물은 이미지·영상 최대 6개이며 첫 파일이 갤러리 표지입니다. 참고 이미지는 JPEG·PNG·WebP 최대 3개입니다. 이용자는 저장 버튼으로 샘플을 받아 AI에 첨부할 수 있습니다.
 

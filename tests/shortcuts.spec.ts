@@ -81,7 +81,7 @@ test("desktop QR encodes the deployed locale URL and supports saving and copying
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/ko");
   await expect(
-    page.getByRole("button", { name: "바탕화면 바로가기", exact: true }),
+    page.getByRole("link", { name: "바탕화면 바로가기", exact: true }),
   ).toBeVisible();
   await page.screenshot({
     path: "output/qa/shortcut-desktop.png",
@@ -135,19 +135,14 @@ test("desktop QR encodes the deployed locale URL and supports saving and copying
   );
 });
 
-test("install button uses browser prompt once and waits for installation confirmation", async ({
+test("desktop shortcut uses the default browser and never installs a browser app", async ({
   page,
 }) => {
   await page.goto("/ko");
-  const button = page.getByRole("button", {
+  const button = page.getByRole("link", {
     name: "바탕화면 바로가기",
     exact: true,
   });
-  await button.click();
-  await expect(
-    page.getByRole("dialog", { name: "AI 전시관 바로가기", exact: true }),
-  ).toContainText("바로가기 만들기");
-  await page.keyboard.press("Escape");
   // Browser install UI and the physical OS are deliberately simulated here.
   await page.evaluate(() => {
     const event = new Event("beforeinstallprompt", { cancelable: true });
@@ -161,17 +156,22 @@ test("install button uses browser prompt once and waits for installation confirm
     });
     window.dispatchEvent(event);
   });
-  await button.click();
-  await expect(page.locator("body")).toHaveAttribute("data-prompt-calls", "1");
-  await expect(page.getByRole("status")).toContainText("설치를 요청했어요");
-  await expect(page.getByRole("dialog")).toHaveCount(0);
-  await button.click();
-  await expect(page.getByRole("dialog")).toBeVisible();
+  const download=page.waitForEvent('download');await button.click();
+  expect((await download).suggestedFilename()).toBe('AI 전시관.zip');
+  const bundle=await page.request.get('/downloads/AI-gallery-ko.zip');
+  expect((await bundle.body()).includes(Buffer.from('AI 전시관.url'))).toBe(true);
+  expect((await bundle.body()).includes(Buffer.from('[InternetShortcut]\r\nURL=https://aiguidepage.vercel.app/ko\r\n'))).toBe(true);
+  expect((await bundle.body()).includes(Buffer.from('AI-gallery.ico'))).toBe(true);
+  await expect(page.locator('body')).not.toHaveAttribute('data-prompt-calls','1');
+  await expect(page.getByRole('dialog')).toContainText('기본 브라우저');
+  const response=await page.request.get('/api/shortcut?locale=ko');
+  expect(await response.text()).toBe('[InternetShortcut]\r\nURL=https://aiguidepage.vercel.app/ko\r\n');
+  expect(await response.text()).not.toMatch(/chrome|profile|app-id|\.exe/i);
   await page.keyboard.press("Escape");
   await page.evaluate(() => window.dispatchEvent(new Event("appinstalled")));
   await expect(
-    page.getByRole("button", { name: "바로가기 추가 완료", exact: true }),
-  ).toBeDisabled();
+    page.getByRole("link", { name: "바탕화면 바로가기", exact: true }),
+  ).toBeVisible();
 });
 
 test("iPhone gets home instructions and app links, Android gets intents with web fallback", async ({

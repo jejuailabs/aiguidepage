@@ -89,11 +89,13 @@
     "androidStep1": "Chrome에서 이 페이지를 열고 오른쪽 위 ⋮ 메뉴를 누르세요.",
     "androidStep2": "‘앱 설치’ 또는 ‘홈 화면에 추가’를 선택하세요.",
     "androidStep3": "설치를 확인하면 홈 화면에서 바로 열 수 있어요.",
-    "desktopStep1": "Chrome 또는 Edge에서 이 페이지를 열고 오른쪽 위 메뉴를 누르세요.",
-    "desktopStep2": "Chrome은 ‘전송, 저장, 공유 → 페이지를 앱으로 설치’, Edge는 ‘앱 → 이 사이트를 앱으로 설치’를 선택하세요.",
-    "desktopStep3": "설치 안내에 따라 바탕화면 바로가기를 추가하세요. Chrome에서 아이콘이 없으면 chrome://apps에서 AI 전시관을 오른쪽 클릭해 ‘바로가기 만들기 → 바탕화면’을 선택하세요.",
+    "desktopStep1": "내려받은 ZIP의 압축을 풀고 ‘AI 전시관.url’ 파일을 바탕화면으로 옮기세요.",
+    "desktopStep2": "아이콘을 누르면 이 PC의 기본 브라우저로 페이지가 열려요.",
+    "desktopStep3": "선반 아이콘을 쓰려면 아래 아이콘을 저장하고, 바로가기를 오른쪽 클릭해 ‘속성 → 아이콘 변경’에서 선택하세요. 아이콘 파일은 계속 보관해 주세요.",
     "iosHint": "추가한 아이콘을 누르면 AI 전시관이 앱처럼 열려요.",
-    "desktopHint": "설치 메뉴 이름은 브라우저에 따라 조금 다를 수 있어요.",
+    "desktopHint": "이 바로가기는 브라우저나 프로필을 지정하지 않아요.",
+    "saveShortcut": "바로가기 다시 저장",
+    "saveIcon": "선반 아이콘 저장",
     "androidHint": "설치 메뉴가 없다면 Chrome에서 주소를 다시 열어주세요."
   },
   "launch": {
@@ -217,6 +219,7 @@
   },
   "portal": {
     "aiAdmin": "AI·카테고리 관리",
+    "manageContent": "프롬프트·도구·게임 관리",
     "aiAdminDescription": "AI를 추가하고, 어떤 카테고리에 보여줄지 직접 선택하세요.",
     "viewMain": "메인에서 확인",
     "aiList": "AI 목록",

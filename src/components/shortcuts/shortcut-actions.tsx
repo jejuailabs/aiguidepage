@@ -28,7 +28,7 @@ export function ShortcutActions() {
   async function addShortcut(element: HTMLElement) {
     focus.current = element;
     setStatus("");
-    if (install.prompt) {
+    if (mobile&&install.prompt) {
       const prompt = install.prompt;
       try {
         await prompt.prompt();
@@ -70,7 +70,7 @@ export function ShortcutActions() {
   return (
     <>
       <div className="shortcut-actions">
-        <button
+        {mobile?<button
           className="shortcut-button"
           disabled={install.installed}
           onClick={(event) => void addShortcut(event.currentTarget)}
@@ -85,7 +85,7 @@ export function ShortcutActions() {
                   : "addDesktop",
             )}
           </span>
-        </button>
+        </button>:<a className="shortcut-button" href={`/downloads/AI-gallery-${locale}.zip`} download={locale==='ko'?'AI 전시관.zip':'AI Gallery.zip'} onClick={event=>{focus.current=event.currentTarget;setPanel('install');setStatus('');}}><Monitor size={18}/><span>{t('addDesktop')}</span></a>}
         <button
           className="shortcut-button"
           onClick={(event) => void openQr(event.currentTarget)}
@@ -184,6 +184,7 @@ export function ShortcutActions() {
                       : "desktopHint",
                 )}
               </p>
+              {!mobile&&<div className="button-row"><a className="pill-button" href={`/downloads/AI-gallery-${locale}.zip`} download={locale==='ko'?'AI 전시관.zip':'AI Gallery.zip'}><Download size={17}/>{t('saveShortcut')}</a><a className="outline-button" href="/icons/favicon.ico" download="AI-gallery.ico"><Download size={17}/>{t('saveIcon')}</a></div>}
               <button className="outline-button" onClick={() => void copyUrl()}>
                 <Copy size={17} />
                 {t(status === "copied" ? "copied" : "copyUrl")}

@@ -459,7 +459,7 @@ export function HallView({
     </PortalShell>
   );
 }
-function PromptWorkbench({ item }: { item: PortalItem & { type: "prompt" } }) {
+export function PromptWorkbench({ item }: { item: PortalItem & { type: "prompt" } }) {
   const locale = useLocale(),
     t = useTranslations("portal"),
     [values, setValues] = useState<Record<string, string>>({}),

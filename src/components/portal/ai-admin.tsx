@@ -107,6 +107,7 @@ export function AiAdmin({
         <Link href="/" className="outline-button">
           {t("viewMain")}
         </Link>
+        <Link href="/platform" className="outline-button">{t('manageContent')}</Link>
       </section>
       <div className="admin-tabs">
         {["ai", "categories"].map((key) => (

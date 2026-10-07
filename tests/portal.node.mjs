@@ -398,7 +398,13 @@ test("organization authorization, invite transactions, content and rules", async
       await assertFails(
         setDoc(doc(admin, "items/claude"), { status: "archived" }),
       );
-      await assertFails(getDoc(doc(anon, "items/prompt-meeting")));
+      const template=(await db.doc('items/prompt-meeting').get()).data();
+      await db.doc('items/private-common').set({...template,public:false});
+      await assertSucceeds(getDoc(doc(anon, "items/prompt-meeting")));
+      await assertFails(getDoc(doc(anon, 'items/private-common')));
+      const publicPrompts=await portal.publicHallItems('prompts');
+      assert(publicPrompts.some(item=>item.id==='prompt-meeting'));
+      assert(!publicPrompts.some(item=>item.id==='private-common'||item.scope==='org'));
       await assertFails(getDoc(doc(unverified, "orgs/test-alpha")));
       await assertSucceeds(
         getDocs(

@@ -191,6 +191,11 @@ export async function publicItems() {
     (item) => item.status === "published" && item.type === "ai" && item.public,
   );
 }
+export async function publicHallItems(hall:Exclude<HallKey,'ai'>){
+  const collection=db().collection('items');
+  const items=await allItems(collection.where('status','==','published').where('type','==',hallType[hall]),'common',undefined,collection);
+  return items.filter(item=>item.status==='published'&&item.public&&item.type===hallType[hall]);
+}
 export async function hallItems(
   viewer: Viewer,
   id: string,

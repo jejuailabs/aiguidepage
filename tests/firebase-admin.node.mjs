@@ -58,3 +58,21 @@ test('server-only rejects an ordinary client-side import', () => {
   assert.notEqual(result.status, 0);
   assert.match(result.stderr, /cannot be imported from a Client Component/);
 });
+
+test('Firebase and JWKS RSA verification work with ESM require disabled',()=>{
+  const code=`
+    require('firebase-admin/auth');require('firebase-admin/firestore');
+    const crypto=require('node:crypto'),client=require('jwks-rsa');
+    const pair=crypto.generateKeyPairSync('rsa',{modulusLength:2048});
+    const jwk={...pair.publicKey.export({format:'jwk'}),kid:'fixture',use:'sig',alg:'RS256'};
+    const resolver=client({jwksUri:'https://example.invalid/jwks',fetcher:async()=>({keys:[jwk]})});
+    resolver.getSigningKey('fixture').then(key=>{
+      const message=Buffer.from('module compatibility fixture');
+      const signature=crypto.sign('RSA-SHA256',message,pair.privateKey);
+      if(!crypto.verify('RSA-SHA256',message,key.getPublicKey(),signature))throw new Error('Signature verification failed');
+      console.log('OK');
+    }).catch(()=>process.exit(1));
+  `;
+  const result=spawnSync(process.execPath,['--no-experimental-require-module','-e',code],{encoding:'utf8'});
+  assert.equal(result.status,0,result.stderr);assert.equal(result.stdout.trim(),'OK');
+});

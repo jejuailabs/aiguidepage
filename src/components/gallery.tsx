@@ -58,7 +58,7 @@ export function Gallery() {
   return <MotionConfig reducedMotion="user"><LayoutGroup>
     <Header mode={preferences.mode} onSettings={() => openPanel('settings')} onLogin={() => router.push(`/${locale}/login`)} onSearch={() => setSearchOpen(value => !value)}
       onTheme={() => update({mode: document.documentElement.dataset.mode === 'dark' ? 'light' : 'dark'})}
-      onHall={id => {if (id === 'tools') router.push(`/${locale}/tools`); else if (id !== 'ai') router.push(`/${locale}/orgs`); else {setCategory('all'); setQuery(''); window.scrollTo({top: 0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth'});}}} />
+      onHall={id => {if (id !== 'ai') router.push(`/${locale}/${id}`); else {setCategory('all'); setQuery(''); window.scrollTo({top: 0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth'});}}} />
     <main id="gallery" className="gallery-main">
       <section className="gallery-intro">
         <div><p className="eyebrow">{t('home.eyebrow')}</p><h1>{t('home.title').split('\n').map((part, i) => <span key={part}>{i > 0 && ' '}{part}</span>)}</h1><p className="intro-description">{t('home.subtitle')}</p></div>
