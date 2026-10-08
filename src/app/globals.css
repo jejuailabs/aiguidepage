@@ -22,10 +22,10 @@ h1, h2, h3, p {margin: 0;}
 .brand {display: flex; align-items: center; gap: 11px; font-weight: 750; font-size: calc(22px * var(--font-scale)); letter-spacing: -.8px; white-space: nowrap;}
 .brand svg {flex-shrink: 0;}
 .desktop-nav {align-self: stretch; display: flex; align-items: stretch; gap: 27px; margin-left: auto; margin-right: auto;}
-.desktop-nav button {font-size: calc(15px * var(--font-scale)); font-weight: 550; position: relative; padding: 0 5px; color: var(--muted); white-space: nowrap;}
-.desktop-nav button.active {color: var(--text); font-weight: 700;}
-.desktop-nav button.active::after {content: ''; position: absolute; bottom: 15px; height: 2px; background: var(--accent); left: 5px; right: 5px;}
-.desktop-nav button:hover {color: var(--text);}
+.desktop-nav a {display: flex; align-items: center; font-size: calc(15px * var(--font-scale)); font-weight: 550; position: relative; padding: 0 5px; color: var(--muted); white-space: nowrap;}
+.desktop-nav a.active {color: var(--text); font-weight: 700;}
+.desktop-nav a.active::after {content: ''; position: absolute; bottom: 15px; height: 2px; background: var(--accent); left: 5px; right: 5px;}
+.desktop-nav a:hover {color: var(--text);}
 .header-actions {display: flex; gap: 12px; align-items: center;}
 .icon-button {width: 48px; height: 48px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; flex-shrink: 0; transition: background .2s;}
 .icon-button:hover {background: var(--chip);}
@@ -231,7 +231,7 @@ h1, h2, h3, p {margin: 0;}
 }
 @media (min-width: 640px) and (max-width: 1023px) {
  .desktop-nav {gap: 12px;}
- .desktop-nav button {font-size: calc(13px * var(--font-scale));}
+ .desktop-nav a {font-size: calc(13px * var(--font-scale));}
  .brand {font-size: calc(20px * var(--font-scale)); gap: 7px;}
  .brand svg {width: 27px;}
  .header-actions {gap: 0;}
@@ -265,9 +265,9 @@ h1, h2, h3, p {margin: 0;}
  .settings-button {width: 40px;}
  .settings-button svg {display: block;}
  .mobile-nav {position: fixed; z-index: 10; bottom: 0; left: 0; right: 0; display: flex; align-items: stretch; justify-content: space-evenly; padding: 9px 10px max(10px, env(safe-area-inset-bottom)); background: var(--header-bg); border-top: 1px solid var(--highlight); backdrop-filter: blur(24px); box-shadow: 0 -5px 30px var(--shadow-soft);}
- .mobile-nav button {min-height: 48px; width: 25%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; color: var(--muted); padding: 0 3px; font-size: calc(10px * var(--font-scale));}
- .mobile-nav button.active {color: var(--accent); font-weight: 700;}
- .mobile-nav button.active svg {stroke-width: 2;}
+ .mobile-nav a {min-height: 48px; width: 25%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; color: var(--muted); padding: 0 3px; font-size: calc(10px * var(--font-scale));}
+ .mobile-nav a.active {color: var(--accent); font-weight: 700;}
+ .mobile-nav a.active svg {stroke-width: 2;}
  .gallery-main {padding: 0 18px 92px;}
  .gallery-intro {padding: 37px 8px 31px; display: block;}
  .gallery-intro .eyebrow {font-size: 8px; letter-spacing: 1.5px;}
@@ -328,3 +328,13 @@ h1, h2, h3, p {margin: 0;}
  .ai-card:hover .cover-name, .card-object:focus-within .cover-name {transform: none; bottom: 29%;}
  .ai-card:hover .service-logo, .card-object:focus-within .service-logo {transform: none; top: 17%; width: 38%; height: 38%; left: 31%;}
 }
+
+.route-loading {padding: 36px max(24px, calc((100vw - 1280px)/2)); min-height: 80vh;}
+.route-loading .brand {margin-bottom: 48px;}
+.route-loading p {color: var(--muted); margin: 24px 0;}
+.route-loading-line {height: 3px; border-radius: 3px; background: var(--accent); animation: route-progress 1.2s ease-in-out infinite; transform-origin: left;}
+.route-loading-cards {display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 24px;}
+.route-loading-cards > div {aspect-ratio: 1.15; border-radius: 18px; background: var(--surface-soft); border: 1px solid var(--line);}
+@keyframes route-progress {0% {transform: scaleX(.15); opacity: .5;} 60% {transform: scaleX(.75); opacity: 1;} 100% {transform: scaleX(1); opacity: .25;}}
+@media (max-width: 700px) {.route-loading-cards {grid-template-columns: repeat(2,minmax(0,1fr)); gap: 16px;}}
+@media (prefers-reduced-motion: reduce) {.route-loading-line {animation: none;}}

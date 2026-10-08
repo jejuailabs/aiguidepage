@@ -4,6 +4,7 @@
     "description": "Conversation, research, documents, film and music. Find the right AI on our shelves."
   },
   "shell": {
+    "loading": "Loading the page…",
     "brand": "AI Gallery",
     "settings": "View settings",
     "darkMode": "Dark appearance",

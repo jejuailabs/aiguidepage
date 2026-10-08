@@ -114,6 +114,7 @@ export function PortalShell({
           if (org) router.push(`/${locale}/o/${org.id}/${key}`);
         }}
         activeHall={active}
+        hallHref={org ? (key) => `/${locale}/o/${org.id}/${key}` : undefined}
         visibleHalls={halls.filter((h) => h.enabled).map((h) => h.key)}
         brandLogo={org?.logoUrl}
         hallLabels={Object.fromEntries(
@@ -165,7 +166,10 @@ export function PortalShell({
               <Link href={`/o/${org.id}/admin`}>{t("manageOrg")}</Link>
             )}
             {viewer.platformAdmin && (
-              <><Link href="/admin">{t('aiAdmin')}</Link><Link href="/platform">{t("platform")}</Link></>
+              <>
+                <Link href="/admin">{t("aiAdmin")}</Link>
+                <Link href="/platform">{t("platform")}</Link>
+              </>
             )}
             <button className="outline-button" disabled={busy} onClick={logout}>
               {t("logout")}

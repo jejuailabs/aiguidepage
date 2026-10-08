@@ -9,12 +9,13 @@ test("public menus open prompts, tools and games without organization signup", a
   await context.grantPermissions(["clipboard-read", "clipboard-write"]);
   await page.goto("/ko");
   await page
-    .getByRole("button", { name: "프롬프트 갤러리", exact: true })
+    .getByRole("link", { name: "프롬프트 갤러리", exact: true })
     .click();
   await expect(page).toHaveURL(/\/ko\/prompts$/);
   await expect(page.locator(".card-prompts")).toHaveCount(12);
+  const total = Number((await page.locator('.collection-count').innerText()).match(/\d+/)?.[0]);
   await page.getByRole("button", { name: "더 둘러보기", exact: true }).click();
-  await expect(page.locator(".card-prompts")).toHaveCount(18);
+  await expect(page.locator(".card-prompts")).toHaveCount(Math.min(total, 24));
   await page
     .locator(".card-prompts")
     .filter({ hasText: "회의록을 다음 행동으로" })
@@ -33,7 +34,7 @@ test("public menus open prompts, tools and games without organization signup", a
     path: "output/qa/public-prompts.png",
     fullPage: true,
   });
-  await page.getByRole("button", { name: "AI 도구", exact: true }).click();
+  await page.getByRole("link", { name: "AI 도구", exact: true }).click();
   await expect(page).toHaveURL(/\/ko\/tools$/);
   await expect(page.locator(".simple-tool-card")).toHaveCount(4);
   await page
@@ -43,7 +44,7 @@ test("public menus open prompts, tools and games without organization signup", a
   await page.locator(".workbench textarea").fill("안녕하세요");
   await expect(page.locator(".workbench")).toContainText("5");
   await page.keyboard.press("Escape");
-  await page.getByRole("button", { name: "게임", exact: true }).click();
+  await page.getByRole("link", { name: "게임", exact: true }).click();
   await expect(page).toHaveURL(/\/ko\/games$/);
   await expect(page.locator(".card-games")).toHaveCount(2);
   await page

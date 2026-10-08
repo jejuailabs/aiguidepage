@@ -4,6 +4,7 @@
     "description": "대화부터 문서, 영상, 음악까지. 선반 위에서 나에게 맞는 AI를 골라 보세요."
   },
   "shell": {
+    "loading": "페이지를 불러오고 있어요.",
     "brand": "AI 전시관",
     "settings": "보기 설정",
     "darkMode": "어두운 화면",
