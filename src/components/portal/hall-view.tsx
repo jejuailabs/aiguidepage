@@ -436,7 +436,7 @@ export function HallView({
                       ) : active.type === "tool" ? (
                         (() => {
                           const Tool = toolRegistry[active.data.toolKey];
-                          return <Tool key={keyOf(active)} item={active} />;
+                          return <Tool key={keyOf(active)} item={{...active,orgId:org.id}} />;
                         })()
                       ) : (
                         (() => {

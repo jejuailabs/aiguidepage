@@ -1290,6 +1290,40 @@ button:disabled {
   margin-top: 8px;
   accent-color: var(--accent);
 }
+.maisa-tool {display: grid; gap: 18px; margin-top: 24px; min-width: 0;}
+.maisa-source {color: var(--muted); font-size: .85rem;}
+.maisa-tool label {display: grid; gap: 9px; font-weight: 600;}
+.maisa-tool input:not([type="checkbox"]):not([type="file"]), .maisa-tool textarea, .maisa-tool select {width: 100%; min-width: 0; padding: 13px 15px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); color: var(--text); font: inherit;}
+.maisa-tool textarea {resize: vertical; min-height: 140px; line-height: 1.7;}
+.maisa-basics {display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 16px;}
+.maisa-actions {display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap;}
+.maisa-actions button {display: inline-flex; gap: 8px; align-items: center;}
+.maisa-step {display: flex; gap: 16px; align-items: center; color: var(--muted); font-size: .9rem;}
+.maisa-step progress {flex: 1; min-width: 60px; height: 6px; accent-color: var(--accent);}
+.maisa-upload {position: relative; padding: 28px 18px; border: 1px dashed var(--muted); border-radius: 16px; background: var(--surface-soft); justify-items: center; text-align: center; cursor: pointer;}
+.maisa-upload:focus-within {outline: 3px solid var(--accent); outline-offset: 4px;}
+.maisa-upload input {max-width: 100%; font: inherit; font-size: .85rem;}
+.maisa-upload span, .maisa-help {color: var(--muted); font-size: .85rem; line-height: 1.7; font-weight: 400;}
+.maisa-files {list-style: none; margin: 0; padding: 0; display: grid; gap: 8px;}
+.maisa-files li {display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--line);}
+.maisa-files li>span {flex: 1; min-width: 0; overflow-wrap: anywhere;}
+.maisa-tool .maisa-consent {display: flex; gap: 10px; align-items: flex-start; font-size: .9rem; line-height: 1.65; font-weight: 400;}
+.maisa-consent input {margin-top: 6px; flex-shrink: 0; width: 18px; height: 18px; accent-color: var(--accent);}
+.maisa-run {width: 100%;}
+.maisa-tool button:disabled {opacity: .5; cursor: not-allowed;}
+.maisa-error {padding: 14px 16px; border-left: 3px solid var(--accent); background: var(--surface-soft); border-radius: 8px;}
+.maisa-result {display: grid; gap: 20px; border-top: 1px solid var(--line); margin-top: 12px; padding-top: 28px; min-width: 0;}
+.maisa-result h3 {display: flex; align-items: center; gap: 8px;}
+.maisa-result h4 {margin: 0 0 8px; font-size: .95rem;}
+.maisa-result pre {white-space: pre-wrap; overflow-wrap: anywhere; margin: 0; font: inherit; line-height: 1.8;}
+.maisa-result audio {width: 100%;}
+.maisa-table {overflow: auto;}
+.maisa-table table {width: 100%; border-collapse: collapse; font-size: .85rem;}
+.maisa-table th, .maisa-table td {padding: 10px; text-align: left; border-bottom: 1px solid var(--line); min-width: 70px;}
+.maisa-spin {animation: maisa-spin 1s linear infinite;}
+@keyframes maisa-spin {to {transform: rotate(360deg);}}
+@media(max-width:600px) {.maisa-basics {grid-template-columns: minmax(0,1fr);} .maisa-actions {gap: 10px;} .maisa-tool {gap: 16px;}}
+@media(prefers-reduced-motion:reduce) {.maisa-spin {animation: none;}}
 .simple-tools-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

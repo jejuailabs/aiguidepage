@@ -1,4 +1,5 @@
 import { aiItems } from "./ai.ts";
+import { maisaTools } from "../lib/maisa-tools.ts";
 import type { Content, Hall } from "../lib/schema.ts";
 const text = (ko: string, en: string) => ({ ko, en });
 export const hallTemplates: Hall[] = [
@@ -299,6 +300,21 @@ export function catalog(messages: {
         },
       }),
   );
+  for (const [index, definition] of maisaTools.entries()) {
+    result.push({
+      id: `tool-${definition.key}`,
+      item: {
+        type: "tool",
+        title: definition.title,
+        summary: definition.summary,
+        category: "work",
+        order: index,
+        status: "published",
+        public: true,
+        data: { toolKey: definition.key },
+      },
+    });
+  }
   for (const [index, key] of (
     ["prompt-builder", "char-count", "qr-maker", "template-fill"] as const
   ).entries()) {

@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { mediaAssetSchema } from "./media.ts";
 import { aiCategoryIdSchema } from "./ai-categories.ts";
+import { maisaToolKeys } from "./maisa-tools.ts";
 
 export const hallKeys = ["ai", "prompts", "tools", "games"] as const;
 export type HallKey = (typeof hallKeys)[number];
@@ -108,6 +109,7 @@ export const contentSchema = z
           "char-count",
           "qr-maker",
           "template-fill",
+          ...maisaToolKeys,
         ]),
         template: l10nSchema.optional(),
       }),

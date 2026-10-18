@@ -1,4 +1,5 @@
 "use client";
+import { maisaToolKeys } from "@/lib/maisa-tools";
 import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { contentSchema, type Content, type PortalItem } from "@/lib/schema";
@@ -421,6 +422,7 @@ export function ItemEditor({
                 "char-count",
                 "qr-maker",
                 "template-fill",
+                ...maisaToolKeys,
               ].map((key) => (
                 <option key={key} value={key}>
                   {t(`tool.${key}`)}

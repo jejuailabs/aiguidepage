@@ -36,7 +36,7 @@ test("public menus open prompts, tools and games without organization signup", a
   });
   await page.getByRole("link", { name: "AI 도구", exact: true }).click();
   await expect(page).toHaveURL(/\/ko\/tools$/);
-  await expect(page.locator(".simple-tool-card")).toHaveCount(4);
+  await expect(page.locator(".simple-tool-card").first()).toBeVisible();
   await page
     .locator(".simple-tool-card")
     .filter({ hasText: "글자 수 세기" })

@@ -70,10 +70,10 @@ after(async () => {
 });
 test("organization authorization, invite transactions, content and rules", async (t) => {
   await fetch(
-    "http://127.0.0.1:8080/emulator/v1/projects/demo-aiguide/databases/(default)/documents",
+    `http://${process.env.FIRESTORE_EMULATOR_HOST}/emulator/v1/projects/demo-aiguide/databases/(default)/documents`,
     { method: "DELETE" },
   );
-  assert.equal((await seed()).created, 38);
+  assert.equal((await seed()).created, 44);
   assert.equal((await seed()).created, 0);
   await portal.ensureProfile(owner);
   await portal.createOrg(owner, orgInput("test-alpha"));
@@ -495,8 +495,8 @@ test("organization authorization, invite transactions, content and rules", async
       env = await initializeTestEnvironment({
         projectId: "demo-aiguide",
         firestore: {
-          host: "127.0.0.1",
-          port: 8080,
+          host: new URL(`http://${process.env.FIRESTORE_EMULATOR_HOST}`).hostname,
+          port: Number(new URL(`http://${process.env.FIRESTORE_EMULATOR_HOST}`).port),
           rules: await readFile("firestore.rules", "utf8"),
         },
       });

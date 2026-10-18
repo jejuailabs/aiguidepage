@@ -8,6 +8,12 @@ import {
   QrCode,
   ClipboardList,
   ArrowRight,
+  FileSearch,
+  ReceiptText,
+  Files,
+  AudioLines,
+  Volume2,
+  NotebookPen,
 } from "lucide-react";
 import { Header } from "@/components/shell/header";
 import { Settings } from "@/components/shell/settings";
@@ -15,26 +21,36 @@ import { Modal } from "@/components/shell/modal";
 import { usePreferences } from "@/theme/use-preferences";
 import { localize, type PortalItem } from "@/lib/schema";
 import { toolRegistry } from "@/tools/registry";
-import {Link} from '@/i18n/navigation';
+import { Link } from "@/i18n/navigation";
 type ToolItem = PortalItem & { type: "tool" };
 const icons = {
   "prompt-builder": FilePenLine,
   "char-count": LetterText,
   "qr-maker": QrCode,
   "template-fill": ClipboardList,
+  "maisa-business-plan": NotebookPen,
+  "maisa-announcement": FileSearch,
+  "maisa-receipt": ReceiptText,
+  "maisa-format": Files,
+  "maisa-transcribe": AudioLines,
+  "maisa-narration": Volume2,
 };
 export function PublicTools({
   items,
   signedIn,
+  initialToolId,
 }: {
   items: ToolItem[];
   signedIn: boolean;
+  initialToolId?: string;
 }) {
   const t = useTranslations("portal"),
     locale = useLocale(),
     router = useRouter(),
     { preferences, update } = usePreferences();
-  const [active, setActive] = useState<ToolItem | null>(null),
+  const [active, setActive] = useState<ToolItem | null>(
+      () => items.find((item) => item.id === initialToolId) || null,
+    ),
     [settings, setSettings] = useState(false);
   const focus = useRef<HTMLElement | null>(null);
   const Tool = active ? toolRegistry[active.data.toolKey] : null;
@@ -59,9 +75,7 @@ export function PublicTools({
           })
         }
         onHall={(hall) =>
-          router.push(
-            `/${locale}${hall === "ai" ? "" : `/${hall}`}`,
-          )
+          router.push(`/${locale}${hall === "ai" ? "" : `/${hall}`}`)
         }
       />
       <main id="gallery" className="portal-main public-tools">
@@ -95,7 +109,9 @@ export function PublicTools({
           })}
         </div>
         <p className="tools-local-note">{t("localOnly")}</p>
-        <footer className="public-hall-footer"><Link href="/platform">{t('manageContent')}</Link></footer>
+        <footer className="public-hall-footer">
+          <Link href="/platform">{t("manageContent")}</Link>
+        </footer>
       </main>
       <Modal
         open={!!active}

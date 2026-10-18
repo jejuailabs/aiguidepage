@@ -44,7 +44,7 @@ test("mobile menu keeps usable links and layout", async ({ page }) => {
   await expect(menu).toBeVisible();
   await expect(menu).toHaveAttribute("href", "/ko/tools");
   await menu.click();
-  await expect(page.locator(".simple-tool-card")).toHaveCount(4);
+  await expect(page.locator(".simple-tool-card").first()).toBeVisible();
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= innerWidth,

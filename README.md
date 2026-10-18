@@ -129,3 +129,15 @@ PC의 ‘바탕화면 바로가기’는 페이지 주소가 담긴 링크입니
 현재 Storage 버킷은 `aiguidepage.firebasestorage.app`이며 배포 주소와 로컬 3000·3002 포트의 업로드 CORS를 설정했습니다. 서버는 기존 `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET`을 사용하며 필요하면 `FIREBASE_STORAGE_BUCKET`으로 별도 지정할 수 있습니다. Firebase 다운로드 주소는 토큰을 가진 사람에게 파일을 제공하므로 공개 예시로 제공할 수 있는 파일을 등록합니다.
 
 기존 기본 이름만 갤러리·쉬운 도구 이름으로 바꾸려면 `node --env-file-if-exists=.env.local --conditions=react-server --experimental-strip-types scripts/update-gallery-data.mjs`를 실행합니다. 관리자가 직접 바꾼 이름은 유지합니다. 결과물을 등록하지 않은 기존 프롬프트는 준비 안내 또는 글 결과를 표시합니다.
+
+## 마이사 AI 도구
+
+AI 도구 화면에 사업계획서, 공고문 분석, 영수증 정리, 문서 양식 변환, 회의록 정리, 대신 읽어주기 6개가 추가됩니다. 기존 사이트의 로그인 세션으로 실행하며 외부 사이트로 이동하지 않습니다. 공통 콘텐츠 관리에서 제목·설명·게시 상태를 바꾸고 조직별로 숨길 수 있습니다.
+
+서버에 `CLAUDE_API_KEY`, `OPENAI_API_KEY`를 설정합니다. 기본 모델은 마이사와 같은 `claude-sonnet-4-6`, `gpt-4o-transcribe`, `gpt-4o-mini-tts`이며 `.env.example`의 서버 전용 변수로 변경할 수 있습니다. 비밀키는 Git에 저장하거나 `NEXT_PUBLIC_` 접두사를 붙이지 않습니다. 로컬 설정과 Vercel 설정은 별개이며 Vercel 환경변수 변경 후 재배포해야 합니다.
+
+파일은 요청 전체 4MB 이하로 제한하며 영수증은 최대 3장입니다. Vercel 함수의 요청 크기 제한에 맞춘 값입니다. 공고문은 PDF·이미지·TXT, 회의 녹음은 MP3·M4A·WAV·WEBM을 받습니다. 입력 자료는 문서함에 자동 저장하지 않습니다. 결과는 텍스트, 영수증은 CSV, 읽어주기는 MP3로 받습니다. 사업계획서는 8개 질문에 글 또는 브라우저 음성 입력으로 답합니다. 음성 입력이 지원되지 않는 브라우저에서는 글로 작성합니다.
+
+로그인한 계정당 하루 10회, 사이트 전체 하루 100회가 기본값이며 한국 시간으로 집계합니다. `AI_USER_DAILY_LIMIT`, `AI_DAILY_LIMIT`로 조정합니다. 동시 실행과 재시도에 의한 무제한 호출을 서버 트랜잭션으로 제한하며, AI 호출을 시작한 요청은 실패하더라도 횟수에 포함될 수 있습니다. 로그인 전 작성한 글은 같은 탭의 로그인 복귀 때 복원합니다. 파일은 다시 선택해야 합니다.
+
+새 도구 데이터는 코드 배포 후 `npm run seed`로 생성합니다. 기존 문서를 덮어쓰지 않습니다. 검증: `node --conditions=react-server --experimental-strip-types --test tests/maisa.node.mjs tests/csrf.node.mjs`, `npx playwright test tests/maisa.spec.ts`. 브라우저 테스트의 AI 결과는 고정 응답이며 실제 API 결제나 운영 자료를 사용하지 않습니다. 권한과 이용량은 `demo-aiguide` Firebase 에뮬레이터에서 `tests/maisa-access.node.mjs`로 확인합니다.
