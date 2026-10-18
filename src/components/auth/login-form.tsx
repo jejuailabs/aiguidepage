@@ -34,9 +34,10 @@ export function LoginForm() {
     if (result.refreshToken) throw new ApiError("recentLogin");
     const target = new URLSearchParams(window.location.search).get("next");
     window.location.assign(
-      target?.startsWith(`/${locale}/`) && !target.includes("\\")
+      (target === `/${locale}` || target?.startsWith(`/${locale}/`)) &&
+        !target.includes("\\")
         ? target
-        : `/${locale}/orgs`,
+        : `/${locale}`,
     );
   }
   function showError(error: unknown) {
@@ -114,7 +115,11 @@ export function LoginForm() {
       } else {
         const url = new URL(`/${locale}/login`, window.location.origin);
         const next = new URLSearchParams(window.location.search).get("next");
-        if (next?.startsWith(`/${locale}/`)) url.searchParams.set("next", next);
+        if (
+          (next === `/${locale}` || next?.startsWith(`/${locale}/`)) &&
+          !next.includes("\\")
+        )
+          url.searchParams.set("next", next);
         await sendSignInLinkToEmail(auth, email, {
           url: url.toString(),
           handleCodeInApp: true,

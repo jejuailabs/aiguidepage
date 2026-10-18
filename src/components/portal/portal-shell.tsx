@@ -3,13 +3,11 @@ import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { LiveWorkspace } from "./live-workspace";
 import { useLocale, useTranslations } from "next-intl";
-import { signOut } from "firebase/auth";
 import { Header } from "@/components/shell/header";
 import { Settings } from "@/components/shell/settings";
 import { Modal } from "@/components/shell/modal";
 import { usePreferences } from "@/theme/use-preferences";
 import { Link } from "@/i18n/navigation";
-import { getBrowserAuth } from "@/lib/firebase/auth";
 import { api } from "@/lib/client-api";
 import {
   localize,
@@ -39,9 +37,7 @@ export function PortalShell({
     t = useTranslations("portal"),
     locale = useLocale(),
     { preferences, update } = usePreferences();
-  const [panel, setPanel] = useState<"settings" | "account" | "search" | null>(
-      null,
-    ),
+  const [panel, setPanel] = useState<"settings" | "search" | null>(null),
     [query, setQuery] = useState(""),
     [groups, setGroups] = useState<{ hall: HallKey; items: PortalItem[] }[]>(
       [],
@@ -72,20 +68,6 @@ export function PortalShell({
       setBusy(false);
     }
   }
-  async function logout() {
-    setBusy(true);
-    try {
-      await api("/api/session", undefined, "DELETE");
-      try {
-        await signOut(getBrowserAuth());
-      } catch {}
-      router.replace(`/${locale}`);
-      router.refresh();
-    } catch {
-      setError(true);
-      setBusy(false);
-    }
-  }
   function savePreferences(patch: Partial<typeof preferences>) {
     update(patch);
     void api("/api/portal/me/prefs", {
@@ -100,8 +82,8 @@ export function PortalShell({
       <Header
         mode={preferences.mode}
         onSettings={() => open("settings")}
-        onLogin={() => open("account")}
-        onSearch={() => open("search")}
+        signedIn
+        onSearch={() => (org ? open("search") : router.push(`/${locale}`))}
         onTheme={() =>
           savePreferences({
             mode:
@@ -111,33 +93,39 @@ export function PortalShell({
           })
         }
         onHall={(key) => {
-          if (org) router.push(`/${locale}/o/${org.id}/${key}`);
+          router.push(`/${locale}${key === "ai" ? "" : `/${key}`}`);
         }}
-        activeHall={active}
-        hallHref={org ? (key) => `/${locale}/o/${org.id}/${key}` : undefined}
-        visibleHalls={halls.filter((h) => h.enabled).map((h) => h.key)}
-        brandLogo={org?.logoUrl}
-        hallLabels={Object.fromEntries(
-          halls.map((h) => [h.key, localize(h.title, locale)]),
-        )}
-        brandLabel={org ? localize(org.name, locale) : t("brand")}
-        brandHref={`/${locale}/orgs?choose=1`}
-        accountLabel={t("myAccount")}
+        brandHref={`/${locale}`}
       />
       <main id="gallery" className="portal-main">
+        {org && (
+          <nav
+            className="organization-nav"
+            aria-label={localize(org.name, locale)}
+          >
+            <Link href="/me#organizations">{t("myOrganizations")}</Link>
+            <span>{localize(org.name, locale)}</span>
+            {halls
+              .filter((hall) => hall.enabled)
+              .map((hall) => (
+                <Link
+                  key={hall.key}
+                  href={`/o/${org.id}/${hall.key}`}
+                  aria-current={hall.key === active ? "page" : undefined}
+                >
+                  {localize(hall.title, locale)}
+                </Link>
+              ))}
+            {admin && <Link href={`/o/${org.id}/admin`}>{t("manageOrg")}</Link>}
+          </nav>
+        )}
         {children}
       </main>
       <footer className="portal-footer">{t("privacy")}</footer>
       <Modal
         open={panel !== null}
         onClose={() => setPanel(null)}
-        title={t(
-          panel === "settings"
-            ? "settings"
-            : panel === "search"
-              ? "search"
-              : "myAccount",
-        )}
+        title={t(panel === "settings" ? "settings" : "search")}
         description={t("workspace")}
         returnFocus={focus}
         className="settings-panel"
@@ -154,28 +142,6 @@ export function PortalShell({
             }}
             update={savePreferences}
           />
-        ) : panel === "account" ? (
-          <div className="account-menu">
-            <span className="eyebrow">{t("workspace")}</span>
-            <h2>{viewer.name}</h2>
-            <p>{viewer.email}</p>
-            <Link href="/orgs?choose=1">{t("switchOrg")}</Link>
-            <Link href="/join">{t("joinAnother")}</Link>
-            <Link href="/me">{t("favorites")}</Link>
-            {org && admin && (
-              <Link href={`/o/${org.id}/admin`}>{t("manageOrg")}</Link>
-            )}
-            {viewer.platformAdmin && (
-              <>
-                <Link href="/admin">{t("aiAdmin")}</Link>
-                <Link href="/platform">{t("platform")}</Link>
-              </>
-            )}
-            <button className="outline-button" disabled={busy} onClick={logout}>
-              {t("logout")}
-            </button>
-            {error && <p role="alert">{t("errors.unavailable")}</p>}
-          </div>
         ) : (
           <div className="account-menu">
             <h2>{t("search")}</h2>

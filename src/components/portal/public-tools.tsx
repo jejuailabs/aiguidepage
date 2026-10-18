@@ -65,7 +65,7 @@ export function PublicTools({
           setSettings(true);
         }}
         onSearch={() => router.push(`/${locale}`)}
-        onLogin={() => router.push(`/${locale}/${signedIn ? "orgs" : "login"}`)}
+        signedIn={signedIn}
         onTheme={() =>
           update({
             mode:

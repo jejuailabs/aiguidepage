@@ -51,7 +51,6 @@ export function PublicHall({
           setSettings(true);
         }}
         onSearch={() => document.getElementById("public-hall-search")?.focus()}
-        onLogin={() => router.push(`/${locale}/login`)}
         onTheme={() =>
           update({
             mode:

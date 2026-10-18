@@ -7,7 +7,7 @@ export async function AccessNotice({ code = "forbidden" }: { code?: string }) {
       <section className="auth-card">
         <h1>{t("accessTitle")}</h1>
         <p>{t(`errors.${code}`)}</p>
-        <Link className="pill-button" href="/orgs?choose=1">
+        <Link className="pill-button" href="/me#organizations">
           {t("switchOrg")}
         </Link>
         <Link className="text-button" href="/">

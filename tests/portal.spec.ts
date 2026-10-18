@@ -10,10 +10,11 @@ test.skip(
 );
 test.setTimeout(300000);
 const base = process.env.TEST_BASE_URL || "http://127.0.0.1:3002";
+const authHost = process.env.FIREBASE_AUTH_EMULATOR_HOST || "127.0.0.1:9099";
 const headers = { Origin: base, "X-Requested-With": "aiguide" };
 function admin() {
-  process.env.FIREBASE_AUTH_EMULATOR_HOST = "127.0.0.1:9099";
-  process.env.FIRESTORE_EMULATOR_HOST = "127.0.0.1:8080";
+  process.env.FIREBASE_AUTH_EMULATOR_HOST = authHost;
+  process.env.FIRESTORE_EMULATOR_HOST ||= "127.0.0.1:8080";
   return (
     getApps().find((app) => app.name === "portal-e2e") ||
     initializeApp({ projectId: "demo-aiguide" }, "portal-e2e")
@@ -41,7 +42,7 @@ async function token(uid: string, operator = false, verified = true) {
   await auth.updateUser(uid, { emailVerified: verified });
   await auth.setCustomUserClaims(uid, { platformAdmin: operator });
   const response = await fetch(
-    "http://127.0.0.1:9099/identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=demo-api-key",
+    `http://${authHost}/identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=demo-api-key`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -91,6 +92,17 @@ test.beforeAll(async ({ browser }) => {
   }
   await page.close();
 });
+
+test.beforeEach(async ({ context }) => {
+  if (authHost !== "127.0.0.1:9099") {
+    await context.route("http://127.0.0.1:9099/**", async (route) => {
+      const response = await route.fetch({
+        url: route.request().url().replace("127.0.0.1:9099", authHost),
+      });
+      await route.fulfill({ response });
+    });
+  }
+});
 test("session rejects unverified tokens, missing CSRF headers and cross-org access", async ({
   page,
 }) => {
@@ -127,32 +139,91 @@ test("session rejects unverified tokens, missing CSRF headers and cross-org acce
     page.getByText("이 공간을 사용할 권한이 없어요.", { exact: true }),
   ).toBeVisible();
 });
-test("email link login completes in the emulator without sending real email", async ({
+for (const destination of [undefined, "/en", "/en/prompts"]) {
+  test(`email link login returns to ${destination || "the homepage"} without an organization`, async ({
+    page,
+  }) => {
+    await page.goto(
+      `/en/login${destination ? `?next=${encodeURIComponent(destination)}` : ""}`,
+    );
+    const email = `qa-email-${Date.now()}@example.test`;
+    await page.getByLabel("Email", { exact: true }).fill(email);
+    await page.getByRole("button", { name: "Email me a sign-in link" }).click();
+    await expect(page.getByRole("status")).toBeVisible();
+    const response = await fetch(
+      `http://${authHost}/emulator/v1/projects/demo-aiguide/oobCodes`,
+    );
+    const data = await response.json();
+    const entry = data.oobCodes.find(
+      (code: { email: string }) => code.email === email,
+    );
+    expect(entry).toBeTruthy();
+    const url = new URL("/en/login", base);
+    url.searchParams.set("mode", "signIn");
+    url.searchParams.set("oobCode", entry.oobCode);
+    url.searchParams.set("apiKey", "demo-api-key");
+    if (destination) url.searchParams.set("next", destination);
+    await page.goto(url.href);
+    await expect(page).toHaveURL(`${base}${destination || "/en"}`, {
+      timeout: 120000,
+    });
+    await expect(
+      page
+        .locator(destination === "/en/prompts" ? ".card-prompts" : ".ai-card")
+        .first(),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("link", { name: "My page", exact: true }),
+    ).toBeVisible();
+    const cookies = await page.context().cookies();
+    expect(
+      cookies.find((cookie) => cookie.name === "aiguide-session")?.httpOnly,
+    ).toBe(true);
+  });
+}
+
+test("members without organizations can browse public halls and manage organizations on their profile", async ({
   page,
 }) => {
-  await page.goto("/en/login");
-  const email = `qa-email-${Date.now()}@example.test`;
-  await page.getByLabel("Email", { exact: true }).fill(email);
-  await page.getByRole("button", { name: "Email me a sign-in link" }).click();
-  await expect(page.getByRole("status")).toBeVisible();
-  const response = await fetch(
-    "http://127.0.0.1:9099/emulator/v1/projects/demo-aiguide/oobCodes",
+  await login(page, `qa-public-${Date.now()}`, false);
+  await page.goto("/ko");
+  await expect(page.locator(".ai-card").first()).toBeVisible();
+  await page.getByRole("link", { name: "마이페이지", exact: true }).click();
+  await expect(page).toHaveURL(/\/ko\/me$/);
+  await expect(
+    page.getByRole("heading", { name: "마이페이지", exact: true }),
+  ).toBeVisible();
+  await expect(page.locator("#organizations")).toContainText(
+    "아직 참여한 조직이 없어요",
   );
-  const data = await response.json();
-  const entry = data.oobCodes.find(
-    (code: { email: string }) => code.email === email,
-  );
-  expect(entry).toBeTruthy();
-  const url = new URL("/en/login", base);
-  url.searchParams.set("mode", "signIn");
-  url.searchParams.set("oobCode", entry.oobCode);
-  url.searchParams.set("apiKey", "demo-api-key");
-  await page.goto(url.href);
-  await expect(page).toHaveURL(/\/en\/orgs/, { timeout: 120000 });
-  const cookies = await page.context().cookies();
+  for (const hall of ["prompts", "tools", "games"]) {
+    const menu = page.locator(`.desktop-nav a[href="/ko/${hall}"]`);
+    await expect(menu).toBeVisible();
+    await menu.click();
+    await expect(page).toHaveURL(`${base}/ko/${hall}`);
+    await expect(
+      page.getByRole("link", { name: "마이페이지", exact: true }),
+    ).toBeVisible();
+  }
+  await page.goto("/ko/orgs?choose=1");
+  await expect(page).toHaveURL(/\/ko\/me#organizations$/);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(page.locator('.mobile-nav a[href="/ko/prompts"]')).toBeVisible();
   expect(
-    cookies.find((cookie) => cookie.name === "aiguide-session")?.httpOnly,
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
   ).toBe(true);
+  await page.screenshot({
+    path: "output/qa/profile-public-mobile.png",
+    fullPage: true,
+  });
+  await page.locator('.mobile-nav a[href="/ko/prompts"]').click();
+  await expect(page.locator(".card-prompts").first()).toBeVisible();
+  await page.getByRole("link", { name: "마이페이지", exact: true }).click();
+  await page.getByRole("button", { name: "로그아웃", exact: true }).click();
+  await expect(page).toHaveURL(`${base}/ko`);
+  await expect(page.locator(".login-button")).toContainText("로그인");
 });
 test("invite join, public-to-member navigation and favorites survive refresh", async ({
   page,
@@ -173,6 +244,16 @@ test("invite join, public-to-member navigation and favorites survive refresh", a
     .click();
   await expect(member).toHaveURL(/qa-alpha\/ai/, { timeout: 120000 });
   await expect(
+    member.locator('.desktop-nav a[href="/ko/prompts"]'),
+  ).toBeVisible();
+  await expect(
+    member.locator('.organization-nav a[href="/ko/o/qa-alpha/prompts"]'),
+  ).toBeVisible();
+  await expect(member.locator(".site-header .brand")).toHaveAttribute(
+    "href",
+    "/ko",
+  );
+  await expect(
     member.getByRole("heading", { name: "AI 전시관", exact: true }),
   ).toBeVisible();
   await member.goto("/ko/o/qa-alpha/prompts?item=common:prompt-meeting");
@@ -189,6 +270,14 @@ test("invite join, public-to-member navigation and favorites survive refresh", a
   await expect(member.getByText("회의록을 다음 행동으로")).toBeVisible();
   await member.reload();
   await expect(member.getByText("회의록을 다음 행동으로")).toBeVisible();
+  await expect(member.locator("#organizations")).toContainText("제주 AI 랩");
+  await member.goto("/ko/orgs");
+  await expect(member).toHaveURL(/\/ko\/me#organizations$/);
+  await member.setViewportSize({ width: 1440, height: 1000 });
+  await member.screenshot({
+    path: "output/qa/profile-public-desktop.png",
+    fullPage: true,
+  });
   await member.close();
 });
 test("prompt feed loads every page, fills variables, copies and keeps deep links", async ({

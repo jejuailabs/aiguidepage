@@ -26,6 +26,9 @@ h1, h2, h3, p {margin: 0;}
 .desktop-nav a.active {color: var(--text); font-weight: 700;}
 .desktop-nav a.active::after {content: ''; position: absolute; bottom: 15px; height: 2px; background: var(--accent); left: 5px; right: 5px;}
 .desktop-nav a:hover {color: var(--text);}
+.navigation-progress {position: absolute; bottom: 6px; left: 5px; right: 5px; height: 2px; background: var(--accent); transform-origin: left; animation: route-progress 1s ease-in-out infinite; pointer-events: none;}
+.mobile-nav a {position: relative;}
+@media (prefers-reduced-motion: reduce) {.navigation-progress {animation: none;}}
 .header-actions {display: flex; gap: 12px; align-items: center;}
 .icon-button {width: 48px; height: 48px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; flex-shrink: 0; transition: background .2s;}
 .icon-button:hover {background: var(--chip);}
@@ -254,7 +257,10 @@ h1, h2, h3, p {margin: 0;}
  .header-inner {padding: 0 21px; gap: 8px;}
  .brand {font-size: calc(19px * var(--font-scale)); gap: 8px; letter-spacing: -.6px;}
  .brand svg {width: 26px; height: 26px;}
- .desktop-nav, .login-button, .header-divider {display: none;}
+ .desktop-nav, .header-divider {display: none;}
+ .login-button {display: inline-flex; min-width: 40px; width: 40px; height: 44px; margin-left: 0; padding: 0; background: transparent; color: var(--text);}
+ .login-button .account-icon {display: block;}
+ .login-button .account-label {position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap;}
  .header-actions {gap: 1px;}
  .search-button {display: inline-flex; width: 40px;}
  .theme-switch {width: 40px; justify-content: center;}

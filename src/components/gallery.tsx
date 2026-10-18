@@ -56,7 +56,7 @@ export function Gallery() {
   };
   const openPanel = (next: typeof panel) => {rememberFocus(); setPanel(next);};
   return <MotionConfig reducedMotion="user"><LayoutGroup>
-    <Header mode={preferences.mode} onSettings={() => openPanel('settings')} onLogin={() => router.push(`/${locale}/login`)} onSearch={() => setSearchOpen(value => !value)}
+    <Header activeHall="ai" mode={preferences.mode} onSettings={() => openPanel('settings')} onSearch={() => setSearchOpen(value => !value)}
       onTheme={() => update({mode: document.documentElement.dataset.mode === 'dark' ? 'light' : 'dark'})}
       onHall={id => {if (id !== 'ai') router.push(`/${locale}/${id}`); else {setCategory('all'); setQuery(''); window.scrollTo({top: 0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth'});}}} />
     <main id="gallery" className="gallery-main">

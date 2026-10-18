@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import Link from "next/link";
+import Link, { useLinkStatus } from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { useSyncExternalStore } from "react";
 import type { Preferences } from "@/theme/preferences";
@@ -15,6 +15,7 @@ import {
   Sun,
 } from "lucide-react";
 import { halls, type HallId } from "@/data/halls";
+import { AccountLink } from "./account-link";
 
 const hallIcons = {
   ai: Landmark,
@@ -34,18 +35,19 @@ export function Header({
   onHall,
   onTheme,
   mode,
-  activeHall = "ai",
+  activeHall,
   visibleHalls,
   brandLabel,
-  brandHref = "#gallery",
+  brandHref,
   accountLabel,
   brandLogo,
   hallLabels,
   hallHref,
+  signedIn,
 }: {
   onSettings: () => void;
   onSearch: () => void;
-  onLogin: () => void;
+  onLogin?: () => void;
   onHall: (id: HallId) => void;
   onTheme: () => void;
   mode: Preferences["mode"];
@@ -57,6 +59,7 @@ export function Header({
   brandLogo?: string;
   hallLabels?: Partial<Record<HallId, string>>;
   hallHref?: (id: HallId) => string;
+  signedIn?: boolean;
 }) {
   const t = useTranslations();
   const locale = useLocale();
@@ -93,6 +96,7 @@ export function Header({
             >
               {mobile && <Icon size={21} strokeWidth={1.65} />}
               <span>{hallLabels?.[hall.id] || t(`halls.${hall.id}`)}</span>
+              <NavigationFeedback />
             </Link>
           );
         })}
@@ -105,7 +109,7 @@ export function Header({
       </a>
       <header className="site-header">
         <div className="header-inner">
-          <Link className="brand" href={brandHref}>
+          <Link className="brand" href={brandHref || `/${locale}`}>
             {brandLogo ? (
               <Image
                 className="brand-logo"
@@ -151,16 +155,30 @@ export function Header({
               <SlidersHorizontal size={19} />
               <span>{t("shell.settings")}</span>
             </button>
-            <button className="pill-button login-button" onClick={onLogin}>
-              {accountLabel || t("shell.login")}
-              <ArrowIcon />
-            </button>
+            {onLogin ? (
+              <button className="pill-button login-button" onClick={onLogin}>
+                {accountLabel || t("shell.login")}
+                <ArrowIcon />
+              </button>
+            ) : (
+              <AccountLink signedIn={signedIn} />
+            )}
           </div>
         </div>
       </header>
       {navigation(true)}
     </>
   );
+}
+function NavigationFeedback() {
+  const { pending } = useLinkStatus();
+  const t = useTranslations("shell");
+  return pending ? (
+    <>
+      <span className="navigation-progress" aria-hidden="true" />
+      <span className="sr-only" role="status">{t("loading")}</span>
+    </>
+  ) : null;
 }
 function ArrowIcon() {
   return (

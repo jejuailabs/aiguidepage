@@ -1,18 +1,27 @@
 "use client";
 import { useLocale, useTranslations } from "next-intl";
 import { ArrowUpRight, Plus, Landmark } from "lucide-react";
-import { PortalShell } from "./portal-shell";
 import { Link } from "@/i18n/navigation";
 import { localize, type Org, type Viewer } from "@/lib/schema";
-export function OrgPicker({ viewer, orgs }: { viewer: Viewer; orgs: Org[] }) {
+export function OrganizationSection({
+  viewer,
+  orgs,
+}: {
+  viewer: Viewer;
+  orgs: Org[];
+}) {
   const t = useTranslations("portal"),
     locale = useLocale();
   return (
-    <PortalShell viewer={viewer}>
+    <section
+      id="organizations"
+      className="profile-section"
+      aria-labelledby="organizations-title"
+    >
       <section className="portal-intro">
         <div>
           <span className="eyebrow">{t("orgEyebrow")}</span>
-          <h1>{t("chooseOrg")}</h1>
+          <h2 id="organizations-title">{t("myOrganizations")}</h2>
           <p>{t("chooseOrgDescription")}</p>
         </div>
         {viewer.platformAdmin && (
@@ -41,7 +50,7 @@ export function OrgPicker({ viewer, orgs }: { viewer: Viewer; orgs: Org[] }) {
         </Link>
       </div>
       {!orgs.length && <p className="notice">{t("noOrgs")}</p>}
-    </PortalShell>
+    </section>
   );
 }
 function ArrowRightIcon() {

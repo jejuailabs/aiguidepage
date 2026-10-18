@@ -1,5 +1,5 @@
 import { pageViewer } from "@/lib/server/page";
-import { favorites } from "@/lib/server/portal";
+import { favorites, listMyOrgs } from "@/lib/server/portal";
 import { Profile } from "@/components/portal/profile";
 import { AccessNotice } from "@/components/portal/access-notice";
 export default async function ProfilePage({
@@ -9,13 +9,16 @@ export default async function ProfilePage({
 }) {
   const { locale } = await params,
     viewer = await pageViewer(locale, "/me");
-  let data;
+  let data, organizations;
   try {
-    data = (await favorites(viewer)) as React.ComponentProps<
-      typeof Profile
-    >["favorites"];
+    const [saved, membership] = await Promise.all([
+      favorites(viewer),
+      listMyOrgs(viewer),
+    ]);
+    data = saved as React.ComponentProps<typeof Profile>["favorites"];
+    organizations = membership.orgs;
   } catch {
     return <AccessNotice code="unavailable" />;
   }
-  return <Profile viewer={viewer} favorites={data} />;
+  return <Profile viewer={viewer} favorites={data} orgs={organizations} />;
 }
