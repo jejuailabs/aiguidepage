@@ -3,12 +3,15 @@ import AxeBuilder from "@axe-core/playwright";
 import QRCode from "qrcode";
 import { mkdirSync } from "node:fs";
 import { aiItems } from "../src/data/ai";
-import { mobilePlatform, mobileAppHref } from "../src/lib/mobile-launch";
+import { catalog } from "../src/data/catalog";
+import ko from "../messages/ko.json";
+import en from "../messages/en.json";
+import { mobilePlatform, mobileAppHref, mobileStoreHref } from "../src/lib/mobile-launch";
 
 mkdirSync("output/qa", { recursive: true });
 const item = (id: string) => aiItems.find((ai) => ai.id === id)!;
 
-test("mobile routes use verified paths and retain a web fallback", () => {
+test("mobile routes retain app paths and use the correct store fallback", () => {
   expect(
     mobilePlatform("Mozilla/5.0 (Linux; Android 15)", "Linux armv8l", 5),
   ).toBe("android");
@@ -35,9 +38,14 @@ test("mobile routes use verified paths and retain a web fallback", () => {
     const href = mobileAppHref(ai, "android")!;
     expect(href).toContain(`package=${ai.mobileApp!.androidPackage};`);
     expect(href).toContain(
-      `S.browser_fallback_url=${encodeURIComponent(ai.url)};end`,
+      `S.browser_fallback_url=${encodeURIComponent(`https://play.google.com/store/apps/details?id=${ai.mobileApp!.androidPackage}`)};end`,
     );
   }
+  expect(mobileStoreHref(item("chatgpt"), "ios")).toBe("https://apps.apple.com/app/id6448311069");
+  expect(mobileStoreHref(item("gemini"), "ios")).toBe("https://apps.apple.com/app/id6477489729");
+  expect(mobileStoreHref(item("genspark"), "ios")).toBeNull();
+  expect(mobileStoreHref(item("flow-music"), "ios")).toBeNull();
+  expect(mobileStoreHref(item("claude"), null)).toBeNull();
 });
 
 test("manifest and install icons are available without locale redirection", async ({
@@ -190,7 +198,7 @@ test("desktop shortcut uses the default browser and never installs a browser app
   ).toBeVisible();
 });
 
-test("iPhone gets home instructions and app links, Android gets intents with web fallback", async ({
+test("iPhone gets App Store links and Android intents fall back to Google Play", async ({
   browser,
 }) => {
   for (const device of ["iPhone 13", "Pixel 7"] as const) {
@@ -200,6 +208,12 @@ test("iPhone gets home instructions and app links, Android gets intents with web
       reducedMotion: "reduce",
     });
     const page = await context.newPage();
+    // Keep this app-link UI check independent of other local emulator projects.
+    await context.route("**/api/catalog", (route) => route.fulfill({json: {
+      items: catalog({ko: ko.ai, en: en.ai})
+        .filter(({item}) => item.type === "ai" && item.public && item.status === "published")
+        .map(({id, item}) => ({...item, id, scope: "common", createdAt: 0})),
+    }}));
     await page.goto("/ko");
     await page.evaluate(() => (document.documentElement.dataset.scale = "130"));
     const button = page.getByRole("button", {
@@ -231,6 +245,7 @@ test("iPhone gets home instructions and app links, Android gets intents with web
       await page.screenshot({ path: "output/qa/shortcut-mobile.png" });
     await page.keyboard.press("Escape");
     await page.goto("/ko?item=chatgpt");
+    await page.evaluate(() => (document.documentElement.dataset.scale = "130"));
     const link = page.getByRole("link", {
       name: "ChatGPT — 모바일 앱으로 열기",
       exact: true,
@@ -243,9 +258,23 @@ test("iPhone gets home instructions and app links, Android gets intents with web
       )!,
     );
     await expect(link).not.toHaveAttribute("target", "_blank");
+    const store = page.getByRole("link", {name: `ChatGPT — ${device === "iPhone 13" ? "App Store에서 설치" : "Google Play에서 설치"}`, exact: true});
+    await expect(store).toBeVisible();
+    await expect(store).toHaveAttribute("href", device === "iPhone 13" ? "https://apps.apple.com/app/id6448311069" : "https://play.google.com/store/apps/details?id=com.openai.chatgpt");
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
+    expect((await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa"]).analyze()).violations).toEqual([]);
+    await store.scrollIntoViewIfNeeded();
+    await page.screenshot({path: `output/qa/mobile-store-${device === "iPhone 13" ? "ios" : "android"}.png`});
     await expect(
       page.getByRole("link", { name: /ChatGPT — 사이트 열기/ }),
     ).toBeVisible();
+    if (device === "iPhone 13") {
+      await page.goto("/ko?item=gemini");
+      await expect(page.getByRole("link", {name: "Gemini — App Store에서 설치", exact: true})).toHaveAttribute("href", "https://apps.apple.com/app/id6477489729");
+      await expect(page.locator("[data-mobile-launch]")).toHaveCount(0);
+      await page.goto("/ko?item=genspark");
+      await expect(page.locator("[data-mobile-store]")).toHaveCount(0);
+    }
     await context.close();
   }
 });

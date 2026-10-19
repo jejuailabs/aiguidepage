@@ -102,6 +102,10 @@
   },
   "launch": {
     "openMobileApp": "모바일 앱으로 열기",
+    "installIos": "App Store에서 설치",
+    "installAndroid": "Google Play에서 설치",
+    "androidHint": "앱이 열리지 않으면 Google Play로 이동해요. 이동하지 않으면 설치 버튼을 눌러주세요.",
+    "iosHint": "앱을 설치하려면 App Store 버튼을 눌러주세요.",
     "mobileHint": "앱이 설치되어 있으면 앱으로 연결돼요. 열리지 않으면 사이트를 이용하거나 앱을 설치해 주세요.",
     "openApp": "앱으로 열기",
     "install": "앱 설치 안내",

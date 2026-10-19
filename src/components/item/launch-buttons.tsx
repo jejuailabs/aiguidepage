@@ -5,7 +5,7 @@ import {ArrowUpRight, Download, Monitor,Smartphone} from 'lucide-react';
 import type {AiItem} from '@/data/ai';
 import {desktopPlatform} from '@/lib/desktop-platform';
 import {useMobilePlatform} from '@/lib/use-mobile-platform';
-import {mobileAppHref} from '@/lib/mobile-launch';
+import {mobileAppHref,mobileStoreHref} from '@/lib/mobile-launch';
 
 const subscribe = () => () => {};
 const readPlatform = () => desktopPlatform(navigator.userAgent, navigator.platform, navigator.maxTouchPoints);
@@ -15,18 +15,19 @@ export function LaunchButtons({item}: {item: AiItem}) {
   const platform = useSyncExternalStore(subscribe, readPlatform, () => null);
   const [requested, setRequested] = useState(false);
   const desktopApp = platform && item.desktopApp?.platforms.includes(platform) ? item.desktopApp : undefined;
-  const mobile=useMobilePlatform(),mobileHref=mobileAppHref(item,mobile);
+  const mobile=useMobilePlatform(),mobileHref=mobileAppHref(item,mobile),storeHref=mobileStoreHref(item,mobile);
 
   return <div className="launch-section">
     <div className="launch-buttons">
       {mobileHref&&<a className="pill-button stage-launch" href={mobileHref} data-mobile-launch aria-label={`${item.name} — ${t('launch.openMobileApp')}`}><Smartphone size={20}/>{t('launch.openMobileApp')}</a>}
       <a className={mobileHref?'outline-button':'pill-button stage-launch'} href={item.url} target="_blank" rel="noopener noreferrer" aria-label={`${item.name} — ${t('item.openSite')} (${t('shell.newWindow')})`}>{t('item.openSite')}<ArrowUpRight size={20} /></a>
+      {storeHref&&<a className="outline-button" href={storeHref} data-mobile-store aria-label={`${item.name} — ${t(mobile==='ios'?'launch.installIos':'launch.installAndroid')}`}><Download size={18}/>{t(mobile==='ios'?'launch.installIos':'launch.installAndroid')}<ArrowUpRight size={16}/></a>}
       {desktopApp && <a className="app-launch-button desktop-app-control" href={desktopApp.launchUrl} onClick={() => setRequested(true)} data-desktop-launch aria-label={`${item.name} — ${t('launch.openApp')}`}><Monitor size={18} />{t('launch.openApp')}</a>}
     </div>
     {desktopApp && <div className="app-launch-help desktop-app-control">
       {requested ? <div className="app-launch-status" role="status"><strong>{t('launch.requested')}</strong><p>{t('launch.confirmHint')}</p><p>{t('launch.fallback')}</p></div> : <p>{t('launch.installedHint')}</p>}
       <a className="app-install-link" href={desktopApp.installUrl} target="_blank" rel="noopener noreferrer" aria-label={`${item.name} — ${t('launch.install')} (${t('shell.newWindow')})`}><Download size={14} />{t('launch.install')}<ArrowUpRight size={13} /></a>
     </div>}
-    {mobileHref&&<div className="mobile-app-help"><p>{t('launch.mobileHint')}</p><a className="app-install-link" href={mobile==='android'&&item.mobileApp?.androidPackage?`https://play.google.com/store/apps/details?id=${item.mobileApp.androidPackage}`:item.mobileApp?.installUrl} target="_blank" rel="noopener noreferrer"><Download size={14}/>{t('launch.install')}<ArrowUpRight size={13}/></a></div>}
+    {(mobileHref||storeHref)&&<div className="mobile-app-help"><p>{t(storeHref?(mobile==='android'?'launch.androidHint':'launch.iosHint'):'launch.mobileHint')}</p>{!storeHref&&<a className="app-install-link" href={item.mobileApp?.installUrl} target="_blank" rel="noopener noreferrer"><Download size={14}/>{t('launch.install')}<ArrowUpRight size={13}/></a>}</div>}
   </div>;
 }

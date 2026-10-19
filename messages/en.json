@@ -102,6 +102,10 @@
   },
   "launch": {
     "openMobileApp": "Open mobile app",
+    "installIos": "Get it on the App Store",
+    "installAndroid": "Get it on Google Play",
+    "androidHint": "If the app cannot open, you’ll go to Google Play. If you stay here, use the install button.",
+    "iosHint": "Use the App Store button to install the app.",
     "mobileHint": "Opens the app if it’s installed. If it doesn’t open, use the website or install the app.",
     "openApp": "Open desktop app",
     "install": "Get the app",
